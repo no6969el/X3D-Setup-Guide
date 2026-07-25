@@ -2,6 +2,17 @@
 
 This repository contains the first-time setup guide for AMD Ryzen 9 X3D processors. The guide takes users from a completely new PC build (or "never touched BIOS") to a verified, stable, repeatable X3D tune.
 
+## Project Name
+X3D Foundation: A First-Time Setup & Tuning Guide for AMD Ryzen 9 X3D Processors
+
+This project is the foundation of an ecosystem that will eventually include:
+- The first-time setup guide (this repository)
+- The iRacing X3D Tuning kit 
+- The X3D Undervolt Tester
+
+## Project Status
+Currently in development phase: Phase 0 - BIOS Foundation
+
 ## Purpose
 This document is the master plan for building a first-time setup guide that takes a user from "just built the PC" (or "never touched BIOS") to a verified, stable, repeatable X3D tune — ending exactly where the iRacing X3D Tuning kit picks up.
 
