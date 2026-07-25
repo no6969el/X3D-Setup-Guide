@@ -1,0 +1,30 @@
+# X3D First-Time Setup & Optimization Guide
+
+This repository contains the first-time setup guide for AMD Ryzen 9 X3D processors. The guide takes users from a completely new PC build (or "never touched BIOS") to a verified, stable, repeatable X3D tune.
+
+## Purpose
+This document is the master plan for building a first-time setup guide that takes a user from "just built the PC" (or "never touched BIOS") to a verified, stable, repeatable X3D tune — ending exactly where the iRacing X3D Tuning kit picks up.
+
+## Framework Overview
+
+The guide branches on three architectural dimensions:
+- **Class A**: Single-CCD X3D (5800X3D, 7800X3D, 9800X3D) - Simplest path
+- **Class B**: Dual-CCD, single-cache (7900X3D, 7950X3D, 9900X3D, 9950X3D) - The hard case 
+- **Class C**: Dual-CCD, dual-cache (9950X3D2) - Most complex
+
+## Development Status
+This is a work in progress. Current development phase: Phase 0 - BIOS Foundation.
+
+## Structure
+1. [Phase 0 - BIOS Foundation](phase0-bios-foundation.md)
+2. [Phase 1 - Windows Install & Baseline](phase1-windows-baseline.md) 
+3. [Phase 2 - Testing & Validation Kit](phase2-testing-validation.md)
+
+## Project Principles
+1. **Verify, don't assume** - Every setting change gets a verification step (script or manual readout)
+2. **Repeatability over peak numbers** - A tune that trains identically every boot beats a fragile record run
+3. **Auto-detect, then branch** - Chip detection drives which instructions apply 
+4. **Tested or sourced** - Every claim is either validated through our own troubleshooting history, cited from known-good community/vendor sources, or explicitly marked [VERIFY]
+
+## Target Hardware
+Primary target: AMD Ryzen 9 9950X3D (dual-CCD, single V-Cache die)
