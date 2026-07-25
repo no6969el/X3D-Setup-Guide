@@ -11,7 +11,7 @@ This project is the foundation of an ecosystem that will eventually include:
 - The X3D Undervolt Tester
 
 ## Project Status
-Currently in development phase: Phase 0 - BIOS Foundation
+Currently in development phase: Phase 0 - BIOS Foundation (Complete)
 
 ## Purpose
 This document is the master plan for building a first-time setup guide that takes a user from "just built the PC" (or "never touched BIOS") to a verified, stable, repeatable X3D tune — ending exactly where the iRacing X3D Tuning kit picks up.
@@ -24,10 +24,10 @@ The guide branches on three architectural dimensions:
 - **Class C**: Dual-CCD, dual-cache (9950X3D2) - Most complex
 
 ## Development Status
-This is a work in progress. Current development phase: Phase 0 - BIOS Foundation.
+This is a work in progress. Current development phase: Phase 0 - BIOS Foundation (Complete).
 
 ## Structure
-1. [Phase 0 - BIOS Foundation](phase0-bios-foundation.md)
+1. [Phase 0 - BIOS Foundation](phase0-bios-foundation-final.md)
 2. [Phase 1 - Windows Install & Baseline](phase1-windows-baseline.md) 
 3. [Phase 2 - Testing & Validation Kit](phase2-testing-validation.md)
 
