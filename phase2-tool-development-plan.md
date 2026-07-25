@@ -21,14 +21,17 @@ Based on the Phase 2 documentation requirements, these specific verification too
 ### 1. BIOS State Auditor 
 - Reads live memory config, SoC voltage, whatever else research proved readable
 - This tool doesn't exist in current iRacing tuning kit but is needed to verify BIOS settings from Phase 0
+- [COMPLETED - Already developed and moved to final location]
 
 ### 2. Training Fingerprint Capture + Compare  
 - Drift alarm across boots
 - Currently not implemented in the existing project
+- [IN PROGRESS - Planning for development]
 
 ### 3. Health Report Tool
 - Single pass/fail artifact (with detailed logs)
 - Should produce both human-readable and AI-block structured formats for troubleshooting
+- [TO DO - Planning for development]
 
 ## Implementation Requirements
 
