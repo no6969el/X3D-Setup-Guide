@@ -130,5 +130,3 @@ This section contains details of research that resolved issues in Phase 0.
    * Baseline recommendation: Keep FCLK at 2000 MHz
    * Rationale: Higher values can cause WHEA errors that are misattributed to CO instability
    * Path 2 of the guide will cover climbing FCLK for users who want to go beyond baseline
-
-
