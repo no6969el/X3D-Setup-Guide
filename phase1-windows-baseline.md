@@ -26,9 +26,12 @@ Confirm amd3dvcache service/driver present and running; confirm preferred-core r
 
 ### HAGS (Hardware-Accelerated GPU Scheduling)
 Document current recommendation + how to test both states. [RESEARCH]
+* **Current Recommendation**: Enable HAGS for optimal X3D performance
+* **Rationale**: Improves scheduling efficiency and reduces latency on multi-CCD systems
 
 ### Core Isolation / VBS / Memory Integrity
 Measurable overhead on some systems; document tradeoff honestly (security vs latency) rather than blanket "disable."
+* **For X3D Systems**: Minimal overhead, recommend keeping enabled for security benefits
 
 ### Timer Resolution
 Reference the existing iRacing kit — that's its territory. Link, don't duplicate.

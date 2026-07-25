@@ -36,29 +36,6 @@ Record trained values after first successful boot (tRFC, actual UCLK/MCLK/FCLK) 
 ### Optional Advanced Section 
 Manual subtimings, tRFC tightening, bank group swap — explicitly out of scope for "first-time setup," linked as a follow-on.
 
-## 2.2 Memory: EXPO + Guaranteed Training Integrity
-
-This is a core pillar of the guide per the brain dump: the memory tune must be trained, and must STAY trained, so the state is guaranteed identical at every boot.
-
-### Enable EXPO Profile
-Enable the EXPO profile (or manual timings for advanced path).
-
-### Memory Context Restore (MCR): DISABLED
-With MCR enabled, the board skips full DRAM training on boot and restores cached training data — faster boots, but training state can drift or restore stale/marginal data, producing "it was stable yesterday" instability. Disabling MCR forces a full retrain every boot: slower POST, guaranteed consistent training.
-
-### Power Down Enable: DISABLED
-Paired with MCR on most AM5 boards — both off for training consistency. [VERIFY pairing behavior per vendor]
-
-### Record Trained Values
-Record trained values after first successful boot (tRFC, actual UCLK/MCLK/FCLK) — these become the reference fingerprint the testing kit checks against.
-
-**Guidance:**
-- FCLK/UCLK/MCLK ratio guidance: 1:1 UCLK=MCLK for ≤6000 MT/s sweet spot; FCLK 2000–2133 typical
-- SoC voltage guardrail: ≤1.30V hard cap (post-burnout AGESA-enforced, but verify the board respects it and don't manually exceed)
-
-### Optional Advanced Section 
-Manual subtimings, tRFC tightening, bank group swap — explicitly out of scope for "first-time setup," linked as a follow-on.
-
 ## 2.3 PBO & Curve Optimizer (Negative Offsets)
 
 Start philosophy: every chip's silicon is different — start low, validate, step down.
@@ -147,3 +124,11 @@ This section contains details of research that resolved issues in Phase 0.
 * Maximum SoC voltage should be ≤1.30V post-burnout AGESA-enforced.
 * While most boards respect this, verify with the specific board manufacturer's documentation or tools if possible.
 * This is a safety measure to prevent damage or instability.
+
+### FCLK Guidance Update (Phase 0 v0.4 Resolution)
+* **FCLK guidance has been refined**: 
+   * Baseline recommendation: Keep FCLK at 2000 MHz
+   * Rationale: Higher values can cause WHEA errors that are misattributed to CO instability
+   * Path 2 of the guide will cover climbing FCLK for users who want to go beyond baseline
+
+
