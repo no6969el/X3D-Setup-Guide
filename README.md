@@ -13,6 +13,9 @@ This project is the foundation of an ecosystem that will eventually include:
 ## Project Status
 Currently in development phase: Phase 0 - BIOS Foundation (Complete)
 
+## Development Status
+This is a work in progress. Current development phase: Phase 0 - BIOS Foundation (Complete).
+
 ## Purpose
 This document is the master plan for building a first-time setup guide that takes a user from "just built the PC" (or "never touched BIOS") to a verified, stable, repeatable X3D tune — ending exactly where the iRacing X3D Tuning kit picks up.
 

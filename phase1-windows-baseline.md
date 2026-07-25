@@ -47,3 +47,23 @@ Clean install, no bloat. Note our documented MEMORY_MANAGEMENT 0x61941 BSOD hist
 Phase 1 ends where the iRacing X3D Tuning kit begins: 
 per-application CPU Sets, GPU interrupt affinity, Process Lasso config. 
 The first-time-setup guide links out; no duplication.
+
+## 3.4 Integration with Phase 0 Findings
+
+Based on the research resolution from Phase 0 v0.4, several key recommendations should be incorporated into this baseline:
+
+### FCLK Guidance Update
+The current BIOS foundation guidance has been refined:
+* **Baseline recommendation**: Keep FCLK at 2000 MHz (as established in Phase 0)
+* **Rationale**: Higher values can cause WHEA errors that are misattributed to CO instability
+* **Impact on Windows baseline**: This stability-focused approach should be maintained through the Windows setup phase
+
+### Memory Training Integrity 
+The memory training consistency achieved in BIOS must carry forward:
+* The EXPO profile with MCR disabled ensures consistent memory training
+* Any Windows-level configuration should not disrupt this established foundation
+
+### SoC Voltage Enforcement
+Maintain the ≤1.30V SoC voltage guardrail established in Phase 0:
+* This safety measure should be documented and validated during Windows baseline setup
+* The driver stack relies on these voltage parameters for stability

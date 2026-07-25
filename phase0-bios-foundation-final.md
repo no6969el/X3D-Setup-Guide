@@ -1,6 +1,6 @@
-# Phase 0 - BIOS Foundation
+# Phase 0 - BIOS Foundation (Complete)
 
-Everything in this phase happens before Windows matters. Order matters.
+Everything in this phase happens before Windows matters.
 
 ## 2.1 BIOS/AGESA Baseline
 
@@ -75,12 +75,12 @@ Removes a device from the interrupt/scheduling picture; we saw the iGPU cause co
 
 ## 2.5 Boot Integrity Checklist (End of Phase 0)
 
-- [ ] AGESA version recorded
-- [ ] EXPO active, MCR off, Power Down off
-- [ ] Trained memory fingerprint recorded
-- [ ] SoC voltage confirmed ≤1.30V
-- [ ] CO offsets recorded per core/CCD
-- [ ] Three consecutive cold boots train to identical values [tooling opportunity: fingerprint-compare script]
+- [x] AGESA version recorded
+- [x] EXPO active, MCR off, Power Down off
+- [x] Trained memory fingerprint recorded
+- [x] SoC voltage confirmed ≤1.30V
+- [x] CO offsets recorded per core/CCD
+- [x] Three consecutive cold boots train to identical values [tooling opportunity: fingerprint-compare script]
 
 ## Vendor Translation Table
 
@@ -130,3 +130,5 @@ This section contains details of research that resolved issues in Phase 0.
    * Baseline recommendation: Keep FCLK at 2000 MHz
    * Rationale: Higher values can cause WHEA errors that are misattributed to CO instability
    * Path 2 of the guide will cover climbing FCLK for users who want to go beyond baseline
+
+
