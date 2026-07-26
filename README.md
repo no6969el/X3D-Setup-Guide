@@ -11,10 +11,10 @@ This project is the foundation of an ecosystem that will eventually include:
 - The X3D Undervolt Tester
 
 ## Project Status
-Currently in development phase: Phase 0 - BIOS Foundation (Complete)
+Currently in development phase: Phase 2 - Testing & Validation Kit (Complete)
 
 ## Development Status
-This is a work in progress. Current development phase: Phase 0 - BIOS Foundation (Complete).
+This is a work in progress. Current development phase: Phase 2 - Testing & Validation Kit (Complete).
 
 ## Purpose
 This document is the master plan for building a first-time setup guide that takes a user from "just built the PC" (or "never touched BIOS") to a verified, stable, repeatable X3D tune — ending exactly where the iRacing X3D Tuning kit picks up.
@@ -82,3 +82,41 @@ All changes to the X3D Tuning Kit are immediately documented to maintain consist
 - **Chip_Expansion_Request_Sheet.md** is maintained for future expansion planning
 
 This "verify, don't assume" philosophy ensures that documentation always reflects the current state of the project.
+
+## Beta Testing & Chip-Specific Testing
+
+We are now preparing for a beta testing phase to validate our enhanced chip detection and tuning capabilities across all supported X3D processor families. 
+
+### Supported Chip Classes
+- **Class A**: Single-CCD processors (5800X3D, 7800X3D, 9800X3D)
+- **Class B**: Dual-CCD, single-cache processors (7900X3D, 7950X3D, 9900X3D, 9950X3D)  
+- **Class C**: Dual-CCD, dual-cache processors (9950X3D2)
+
+### Beta Tester Guidelines
+Beta testers can contribute valuable data by running the following tests on their specific hardware:
+
+1. **Chip Detection Test**: Run `X3D-Profiles.ps1` to verify accurate chip class detection
+2. **Undervolt Testing**: Execute `X3D-Undervolt-Tester.ps1` with appropriate parameters for their chip class
+3. **Stability Verification**: Run stability tests across all workload stages
+4. **Performance Benchmarking**: Compare results against baseline performance metrics
+
+### Data Collection Requirements
+When contributing to the beta testing program, please provide:
+- Chip identification and class
+- Environmental fingerprint (AGESA, BIOS, drivers, etc.)
+- Test parameters used
+- Stability test results
+- Performance benchmarking data
+- Clock stretching measurements
+- Any error logs or failure analysis
+
+### Test Results Format
+All test results should follow the standardized validation report format found in the `temp/` directory. This ensures consistent data collection and analysis across all beta testers.
+
+### How to Contribute
+1. Run the appropriate tests for your chip class
+2. Document your findings using the validation report template
+3. Submit your results to the development team
+4. Provide feedback on usability and documentation clarity
+
+This beta testing phase will help us validate our enhanced chip detection and tuning capabilities across the full range of supported X3D processors.
