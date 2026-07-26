@@ -8,25 +8,6 @@ The X3D First-Time Setup & Optimization Guide is a comprehensive project that bu
 
 The project has successfully implemented dual-format output capabilities for scripts, with enhanced scripts in the `df_scripts/` directory and original scripts in the `scripts/` directory. All scripts in the df_scripts directory now support dual-format output as specified in the project requirements.
 
-## Enhanced GUI Implementation
-
-The project has also successfully implemented an enhanced GUI interface that provides:
-- Real-time feedback for all menu selections
-- Consistent, structured data display for all operations
-- Automatic cleanup of PowerShell processes when the GUI is closed
-- Integration of all existing tools into a unified interface
-- Enhanced chip profile detection with detailed information display
-- Improved user experience for all tuning operations
-
-## Enhanced GUI Progress
-
-The enhanced GUI implementation addresses the original issue where "menu selection 1 does not change or show anything if it works or not" by providing clear visual feedback for all operations. The GUI now:
-- Shows detailed chip profile information when selecting "1. Chip Profile Detection"
-- Displays formatted results for all other menu selections
-- Provides consistent, user-friendly output for all tools
-- Automatically terminates PowerShell processes launched by the GUI
-- Maintains a clean, organized interface for system tuning
-
 ## Development Phases
 
 ### Phase 1: Foundation Completion (v0.3 - v0.5)
@@ -78,8 +59,8 @@ The enhanced GUI implementation addresses the original issue where "menu selecti
 - [x] Implement testing protocol tiers
 
 #### Advanced Features
-- [ ] CoreCycler + idle-soak integration
-- [ ] Every result routed through dual-format engine
+- [x] CoreCycler + idle-soak integration
+- [x] Every result routed through dual-format engine
 
 ### Phase 4: Chip Expansion (v0.8)
 **Priority: Medium**
@@ -117,6 +98,9 @@ The enhanced GUI implementation addresses the original issue where "menu selecti
 - [x] Improve error handling and edge case management
 - [x] Optimize testing protocols for faster execution
 - [x] Strengthen documentation and user guides
+- [x] Implement crash detection and recovery system (survivorship bias mitigation)
+- [x] Enhance outcome classification with detailed failure modes
+- [x] Implement clock-stretching measurement with C0 residency gating
 
 #### Deliverables
 1. Automated testing framework
@@ -124,6 +108,9 @@ The enhanced GUI implementation addresses the original issue where "menu selecti
 3. Improved error handling
 4. Optimized performance protocols
 5. Updated documentation
+6. Crash detection and recovery system
+7. Detailed outcome classification
+8. Clock-stretching measurement capabilities
 
 ### Phase 7: Tool Integration and Release (v1.1)
 **Priority: High**
@@ -197,7 +184,7 @@ The enhanced GUI implementation addresses the original issue where "menu selecti
 - `PROJECT_PLAN.md` - Complete development plan and roadmap
 - `PROJECT_ROADMAP.md` - This file - complete roadmap with phases and milestones
 - `PROJECT_MAP.md` - Directory structure and file organization
-- `STATUS.md` - Current status tracking with implementation progress
+- `PROJECT_STATUS.md` - Current status tracking with implementation progress
 - `phase0-bios-foundation.md` - BIOS foundation setup
 - `phase0-bios-foundation-final.md` - Final BIOS foundation
 - `phase1-windows-baseline.md` - Windows baseline configuration
@@ -214,6 +201,14 @@ The enhanced GUI implementation addresses the original issue where "menu selecti
 - Repeatability over peak numbers is a core principle
 - Auto-detection drives which instructions apply
 
+## Future Development
+
+Based on the current progress and the completion of Phase 6, the next logical step is to focus on Phase 7: Tool Integration and Release. This will involve:
+- Final integration testing of all enhanced tools
+- Preparation of release documentation
+- Creation of user guides and support materials
+- Final validation and testing procedures
+
 ## Redundant Information Analysis
 
 ### Files That May Be Redundant:
@@ -222,17 +217,9 @@ The enhanced GUI implementation addresses the original issue where "menu selecti
 
 ### Recommended Merging:
 - **phase2-tool-development-plan.md** and **FUTURE.pdf** should be merged into a single comprehensive roadmap document (already done in this file)
-- **STATUS.md** should be consolidated with **PROJECT_MAP.md** to avoid duplication (already done in this file)
+- **STATUS.md** should be consolidated with **PROJECT_MAP.md** to avoid duplication (already done in PROJECT_STATUS.md)
 
 ### Suggested Consolidated Structure:
 1. **PROJECT_ROADMAP.md** - Complete roadmap with phases and milestones (this file)
 2. **PROJECT_STATUS.md** - Current status tracking with implementation progress
 3. **PROJECT_STRUCTURE.md** - Directory structure and file organization
-
-## Future Development
-
-Based on the current progress and the completion of Phase 6, the next logical step is to focus on Phase 7: Tool Integration and Release. This will involve:
-- Final integration testing of all enhanced tools
-- Preparation of release documentation
-- Creation of user guides and support materials
-- Final validation and testing procedures
