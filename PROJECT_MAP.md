@@ -9,6 +9,7 @@ This project contains a collection of PowerShell scripts and documentation for s
   - `Capture-TrainingFingerprint.ps1` - Captures and compares memory training fingerprints
   - `Health-Report.ps1` - Provides system health assessment with dual-format output
   - `X3D-Profiles.ps1` - Manages X3D profiles with dual-format output
+  - `X3D-Undervolt-Tester.ps1` - Integrates undervolt testing with X3D tuning framework
   - All scripts in this directory now support dual-format output
 - `scripts/` - Contains standard utility PowerShell scripts for system configuration and optimization
   - `Add-Defender-Exclusions.ps1` - Adds exclusions to Windows Defender

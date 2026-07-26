@@ -55,6 +55,7 @@ The X3D Tuning Kit includes scripts that support both human-readable output and 
 - **X3D-Profiles.ps1**: Core CPU detection script that provides both human-readable profile information and structured JSON output for AI systems
 - **Pre-Race-Quiet.ps1**: System quieting script with both status reporting and structured data for AI analysis
 - **Post-Race-Restore.ps1**: System restoration script with dual-format output capabilities
+- **X3D-Undervolt-Tester.ps1**: Undervolt testing script that integrates with the X3D tuning framework and provides both human-readable results and AI-structured output
 - **All scripts in df_scripts directory**: All scripts in the dedicated df_scripts directory now support dual-format output
 
 ### Usage Examples:

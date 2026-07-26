@@ -53,10 +53,10 @@ The project has successfully implemented dual-format output capabilities for scr
 **Priority: Medium**
 
 #### Absorb X3D Undervolt Tester
-- [ ] Integrate into suite
-- [ ] Implement per-core guided stepping
-- [ ] Create recommendation engine
-- [ ] Implement testing protocol tiers
+- [x] Integrate into suite
+- [x] Implement per-core guided stepping
+- [x] Create recommendation engine
+- [x] Implement testing protocol tiers
 
 #### Advanced Features
 - [ ] CoreCycler + idle-soak integration
