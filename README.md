@@ -1,5 +1,8 @@
 # X3D First-Time Setup & Optimization Guide
 
+[!IMPORTANT] This project is now in the beta testing phase! 
+Please see the "Beta Testing & Chip-Specific Testing" section below for detailed instructions on how to contribute to our validation testing.
+
 This repository contains the first-time setup guide for AMD Ryzen 9 X3D processors. The guide takes users from a completely new PC build (or "never touched BIOS") to a verified, stable, repeatable X3D tune.
 
 ## Project Name
@@ -113,10 +116,16 @@ When contributing to the beta testing program, please provide:
 ### Test Results Format
 All test results should follow the standardized validation report format found in the `temp/` directory. This ensures consistent data collection and analysis across all beta testers.
 
+### Download Beta Testing Package
+All beta testing materials are now available in a downloadable package:
+- **Download**: [X3D-Beta-Testing-Package.zip](X3D-Beta-Testing-Package.zip)
+- This package contains all necessary tools and documentation for beta testing
+
 ### How to Contribute
-1. Run the appropriate tests for your chip class
-2. Document your findings using the validation report template
-3. Submit your results to the development team
-4. Provide feedback on usability and documentation clarity
+1. Download and extract the beta testing package
+2. Run the `X3D-Beta-Test.bat` script to perform automated testing
+3. Document your findings using the validation report template
+4. Submit your results to the development team
+5. Provide feedback on usability and documentation clarity
 
 This beta testing phase will help us validate our enhanced chip detection and tuning capabilities across the full range of supported X3D processors.
