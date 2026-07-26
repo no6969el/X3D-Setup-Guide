@@ -46,6 +46,8 @@ This project contains a collection of PowerShell scripts and documentation for s
 - `phase2-tool-enhancement-plan.md` - Tool enhancement plan
 - `x3d-first-time-setup-plan.pdf` - First-time setup plan (PDF)
 - `FUTURE.pdf` - Future development plans (PDF)
+- `PROJECT_STATUS.md` - Current status tracking with implementation progress (consolidated from STATUS.md and PROJECT_MAP.md)
+- `UNIFIED_ROADMAP.md` - Complete roadmap with phases and milestones (consolidated from phase2-tool-development-plan.md and FUTURE.pdf)
 
 ## PowerShell Script Purpose Summary
 - **Preparation Scripts**: `Pre-Race-Quiet.ps1`, `Preflight-Check.ps1`
