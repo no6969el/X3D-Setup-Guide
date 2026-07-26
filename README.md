@@ -42,3 +42,30 @@ This is a work in progress. Current development phase: Phase 0 - BIOS Foundation
 
 ## Target Hardware
 Primary target: AMD Ryzen 9 9950X3D (dual-CCD, single V-Cache die)
+
+## X3D Tuning Kit - Dual-Format Optimization
+
+The X3D Tuning Kit includes scripts that support both human-readable output and AI-readable structured output. This dual-format approach allows for:
+
+1. **Human-Readable Output**: Traditional console output with clear status messages and guidance
+2. **AI-Readable Output**: Structured JSON output that can be parsed by AI systems for automated analysis and decision-making
+
+### Key Scripts with Dual-Format Support:
+
+- **X3D-Profiles.ps1**: Core CPU detection script that provides both human-readable profile information and structured JSON output for AI systems
+- **Pre-Race-Quiet.ps1**: System quieting script with both status reporting and structured data for AI analysis
+- **Post-Race-Restore.ps1**: System restoration script with dual-format output capabilities
+
+### Usage Examples:
+
+For human users:
+```powershell
+.\X3D-Profiles.ps1
+```
+
+For AI systems:
+```powershell
+.\X3D-Profiles.ps1 -AIOnly
+```
+
+This dual-format approach ensures that the X3D tuning process can be effectively used by both human operators and automated systems, providing flexibility in how the tuning information is consumed and processed.
