@@ -11,6 +11,8 @@ This document tracks the progress of Phase 2 development for the X3D Setup Guide
 - [x] Documentation review and planning
 - [x] Training Fingerprint Capture + Compare Tool Development  
 - [x] Health Report Tool Development
+- [x] X3D-Profiles.ps1 tool enhancement for dual-format output
+- [x] Script organization into df_scripts folder
 
 ### 📋 In Progress
 - [ ] Enhancement of Existing Tools for Dual-Format Output

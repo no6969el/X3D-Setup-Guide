@@ -4,7 +4,12 @@
 This project contains a collection of PowerShell scripts and documentation for setting up and optimizing Windows systems for gaming and performance-critical applications, particularly focused on X3D (Xtreme 3D) performance tuning.
 
 ## Scripts Directory Structure
-- `scripts/` - Contains all PowerShell scripts for system configuration and optimization
+- `df_scripts/` - Contains dual-format PowerShell scripts for system configuration and optimization (human-readable + AI-block structured output)
+  - `BIOS-State-Auditor.ps1` - Audits BIOS settings for X3D systems
+  - `Capture-TrainingFingerprint.ps1` - Captures and compares memory training fingerprints
+  - `Health-Report.ps1` - Provides system health assessment with dual-format output
+  - `X3D-Profiles.ps1` - Manages X3D profiles with dual-format output
+- `scripts/` - Contains standard utility PowerShell scripts for system configuration and optimization
   - `Add-Defender-Exclusions.ps1` - Adds exclusions to Windows Defender
   - `Apply-Guide-Extras.ps1` - Applies additional guide optimizations
   - `Check-Quiet-Status.ps1` - Checks current quiet mode status
@@ -26,7 +31,6 @@ This project contains a collection of PowerShell scripts and documentation for s
   - `Undo-Guide-Extras.ps1` - Undoes guide optimizations
   - `Undo-NIC-USB-IRQ-Affinity.ps1` - Undoes NIC/USB IRQ affinity
   - `Watch-TimerResolution.ps1` - Watches timer resolution changes
-  - `X3D-Profiles.ps1` - Manages X3D profiles
 
 ## Documentation Files
 - `README.md` - Main project documentation

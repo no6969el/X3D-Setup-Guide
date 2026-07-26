@@ -72,6 +72,7 @@ All completed tools have been moved from the temporary directory to the main Pro
 - BIOS-State-Auditor.ps1 (already present)
 - Capture-TrainingFingerprint.ps1 (moved from temp directory)  
 - Health-Report.ps1 (moved from temp directory)
+- X3D-Profiles.ps1 (enhanced for dual-format output)
 
 The temporary directory structure is now: 
 ```
