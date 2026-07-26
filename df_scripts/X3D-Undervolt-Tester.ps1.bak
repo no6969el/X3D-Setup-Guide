@@ -185,57 +185,6 @@ try {
     return
 }
 
-# Enhanced chip classification and parameter selection
-Write-HumanOutput "Analyzing chip characteristics for optimized testing..."
-$chipClass = "Unknown"
-$chipArchitecture = $profile.Arch
-$chipTDP = 0
-$chipPPT = 0
-$chipTjmax = 0
-$multiplierUnlocked = $false
-$curveShaperSupport = $false
-$positiveCO = $false
-
-# Extract detailed chip information from the profile
-if ($profile.Known -and $profile.IsX3D) {
-    # Get the detailed chip information from the catalog
-    $catalog = Get-X3DCatalog
-    $chipEntry = $null
-    foreach ($entry in $catalog) {
-        if ($profile.Model -match $entry.Match) {
-            $chipEntry = $entry
-            break
-        }
-    }
-    
-    if ($chipEntry) {
-        $chipTDP = $chipEntry.TDP
-        $chipPPT = $chipEntry.PPT
-        $chipTjmax = $chipEntry.Tjmax
-        $multiplierUnlocked = $chipEntry.MultiplierUnlocked
-        $curveShaperSupport = $chipEntry.CurveShaperSupport
-        $positiveCO = $chipEntry.PositiveCO
-        
-        # Classify the chip based on architecture and topology
-        if ($profile.Topology -eq "single") {
-            $chipClass = "Class A"
-        } elseif ($profile.VCacheScope -eq "both") {
-            $chipClass = "Class C"
-        } else {
-            $chipClass = "Class B"
-        }
-        
-        Write-HumanOutput "  Chip Class: $chipClass"
-        Write-HumanOutput "  Architecture: $chipArchitecture"
-        Write-HumanOutput "  TDP: $chipTDP W"
-        Write-HumanOutput "  PPT: $chipPPT W"
-        Write-HumanOutput "  Tjmax: $chipTjmax°C"
-        Write-HumanOutput "  Multiplier Unlocked: $multiplierUnlocked"
-        Write-HumanOutput "  Curve Shaper Support: $curveShaperSupport"
-        Write-HumanOutput "  Positive CO Support: $positiveCO"
-    }
-}
-
 # Display chip information
 Write-HumanOutput "Chip Information:"
 Write-HumanOutput "  Model: $($profile.Model)"
@@ -250,68 +199,16 @@ $secondsPerCore = 180  # Default 3 minutes per core
 $cycles = 1  # Default 1 cycle
 $threadsPerCore = 1  # Default 1 thread per core
 
-# Adjust parameters based on chip type and architecture
+# Adjust parameters based on chip type
 if ($profile.IsX3D) {
-    # Chip-specific parameters based on class and architecture
-    switch ($chipClass) {
-        "Class A" {
-            Write-HumanOutput "Class A X3D detected - using optimized test parameters for single-CCD architecture"
-            $testMode = "Heavy"  # Single CCD doesn't need light testing
-            $secondsPerCore = 120  # 2 minutes for single CCD
-            Write-HumanOutput "  Applying Class A tuning parameters: Voltage-limited, thermal-focused testing"
-        }
-        "Class B" {
-            Write-HumanOutput "Class B X3D detected - using dual-CCD test parameters with single-cache"
-            $testMode = "Both"  # Dual CCD needs both light and heavy testing
-            $secondsPerCore = 180  # 3 minutes for dual CCD
-            Write-HumanOutput "  Applying Class B tuning parameters: Per-CCD tuning, core parking considerations"
-        }
-        "Class C" {
-            Write-HumanOutput "Class C X3D detected - using dual-CCD test parameters with dual-cache"
-            $testMode = "Both"  # Dual CCD needs both light and heavy testing
-            $secondsPerCore = 240  # 4 minutes for dual-CCD dual-cache
-            Write-HumanOutput "  Applying Class C tuning parameters: Power-limited, cross-CCD latency considerations"
-        }
-    }
-    
-    # Architecture-specific adjustments
-    switch ($chipArchitecture) {
-        "Zen 3" {
-            Write-HumanOutput "  Architecture: Zen 3 - Using baseline parameters"
-            # Zen 3 has more conservative tuning requirements
-        }
-        "Zen 4" {
-            Write-HumanOutput "  Architecture: Zen 4 - Applying enhanced parameters"
-            # Zen 4 has better power management
-        }
-        "Zen 5" {
-            Write-HumanOutput "  Architecture: Zen 5 - Applying advanced parameters with Curve Shaper support"
-            # Zen 5 has more advanced features
-        }
-    }
-    
-    # Power and thermal considerations
-    if ($chipTDP -gt 150) {
-        Write-HumanOutput "  High TDP chip detected ($chipTDP W) - applying enhanced thermal monitoring"
-    } elseif ($chipTDP -lt 120) {
-        Write-HumanOutput "  Low TDP chip detected ($chipTDP W) - applying conservative testing parameters"
-    }
-    
-    # Multiplier unlock status
-    if ($multiplierUnlocked) {
-        Write-HumanOutput "  Multiplier unlocked - enabling advanced tuning options"
+    if ($profile.Topology -eq "single") {
+        Write-HumanOutput "Single-CCD X3D detected - using optimized test parameters"
+        $testMode = "Heavy"  # Single CCD doesn't need light testing
+        $secondsPerCore = 120  # 2 minutes for single CCD
     } else {
-        Write-HumanOutput "  Multiplier locked - using standard tuning parameters"
-    }
-    
-    # Curve Shaper support
-    if ($curveShaperSupport) {
-        Write-HumanOutput "  Curve Shaper support detected - enabling advanced curve optimization"
-    }
-    
-    # Positive CO support
-    if ($positiveCO) {
-        Write-HumanOutput "  Positive CO support detected - enabling advanced tuning features"
+        Write-HumanOutput "Dual-CCD X3D detected - using standard test parameters"
+        $testMode = "Both"  # Dual CCD needs both light and heavy testing
+        $secondsPerCore = 180  # 3 minutes for dual CCD
     }
 } else {
     Write-HumanOutput "Non-X3D processor detected - using general test parameters"
@@ -426,59 +323,7 @@ if (Test-Path $testScriptPath) {
 # Generate recommendation based on results
 Write-HumanOutput ""
 Write-HumanOutput "Generating recommendation..."
-
-# Create chip-specific recommendation
-$recommendation = "Based on testing results, your system is stable with current undervolt settings."
-
-# Enhanced recommendation engine based on chip class and characteristics
-if ($profile.IsX3D) {
-    switch ($chipClass) {
-        "Class A" {
-            $recommendation = "Class A X3D processor detected. Testing completed successfully with voltage-limited tuning parameters. Consider optimizing for thermal performance with appropriate cooling solutions."
-        }
-        "Class B" {
-            $recommendation = "Class B X3D processor detected. Testing completed successfully with dual-CCD tuning parameters. Ensure proper core parking settings for optimal performance."
-        }
-        "Class C" {
-            $recommendation = "Class C X3D processor detected. Testing completed successfully with dual-CCD dual-cache tuning parameters. Monitor power consumption and cross-CCD latency for optimal performance."
-        }
-    }
-    
-    # Architecture-specific recommendations
-    switch ($chipArchitecture) {
-        "Zen 3" {
-            $recommendation += " Zen 3 architecture detected - maintain conservative tuning for stability."
-        }
-        "Zen 4" {
-            $recommendation += " Zen 4 architecture detected - consider enhanced power management settings."
-        }
-        "Zen 5" {
-            $recommendation += " Zen 5 architecture detected - leverage advanced Curve Shaper and Positive CO features for optimal tuning."
-        }
-    }
-    
-    # Power and thermal considerations
-    if ($chipTDP -gt 150) {
-        $recommendation += " High TDP chip ($chipTDP W) detected - ensure adequate cooling and thermal monitoring."
-    } elseif ($chipTDP -lt 120) {
-        $recommendation += " Low TDP chip ($chipTDP W) detected - conservative tuning approach applied."
-    }
-    
-    # Feature-specific recommendations
-    if ($multiplierUnlocked) {
-        $recommendation += " Multiplier unlocked - advanced tuning options available."
-    }
-    
-    if ($curveShaperSupport) {
-        $recommendation += " Curve Shaper support detected - enable advanced curve optimization."
-    }
-    
-    if ($positiveCO) {
-        $recommendation += " Positive CO support detected - advanced tuning features enabled."
-    }
-}
-
-Write-HumanOutput "Recommendation: $recommendation"
+Write-HumanOutput "Recommendation: Based on testing results, your system is stable with current undervolt settings."
 
 # --- AI Output ---
 $aiResults = @{
@@ -488,7 +333,7 @@ $aiResults = @{
     whea_errors = 0
     peak_mhz = 0
     total_run_time = "00:00:00"
-    recommendation = $recommendation
+    recommendation = "Based on testing results, your system is stable with current undervolt settings."
 }
 
 $aiOutput = @{
@@ -498,14 +343,6 @@ $aiOutput = @{
         cores = $profile.Cores
         logical_processors = $profile.LogicalCores
         is_x3d = $profile.IsX3D
-        chip_class = $chipClass
-        architecture = $chipArchitecture
-        tdp = $chipTDP
-        ppt = $chipPPT
-        tjmax = $chipTjmax
-        multiplier_unlocked = $multiplierUnlocked
-        curve_shaper_support = $curveShaperSupport
-        positive_co_support = $positiveCO
     }
     test_plan = @{
         mode = $testMode

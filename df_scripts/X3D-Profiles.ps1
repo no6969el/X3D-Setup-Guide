@@ -47,27 +47,26 @@ $script:X3DConfigFile = Join-Path $script:X3DConfigDir 'config.json'
 # ================================================================
 $script:X3DCatalog = @(
     # ---- Zen 5 / AM5 ----
-    @{ Match='9950X3D2';      Model='Ryzen 9 9950X3D2 Dual Edition'; Arch='Zen 5'; Platform='AM5'; Cores=16; CCDs=2; Ccd0Cores=8; VCache='both'; Form='desktop' },
-    @{ Match='9950X3D(?!2)';  Model='Ryzen 9 9950X3D';               Arch='Zen 5'; Platform='AM5'; Cores=16; CCDs=2; Ccd0Cores=8; VCache='ccd0'; Form='desktop' },
-    @{ Match='9900X3D';       Model='Ryzen 9 9900X3D';               Arch='Zen 5'; Platform='AM5'; Cores=12; CCDs=2; Ccd0Cores=6; VCache='ccd0'; Form='desktop' },
-    @{ Match='9850X3D';       Model='Ryzen 7 9850X3D';               Arch='Zen 5'; Platform='AM5'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop' },
-    @{ Match='9800X3D';       Model='Ryzen 7 9800X3D';               Arch='Zen 5'; Platform='AM5'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop' },
-    @{ Match='9955HX3D';      Model='Ryzen 9 9955HX3D (mobile)';     Arch='Zen 5'; Platform='FL1'; Cores=16; CCDs=2; Ccd0Cores=8; VCache='ccd0'; Form='mobile'  },
+    @{ Match='9950X3D2';      Model='Ryzen 9 9950X3D2 Dual Edition'; Arch='Zen 5'; Platform='AM5'; Cores=16; CCDs=2; Ccd0Cores=8; VCache='both'; Form='desktop'; TDP=200; PPT=270; Tjmax=95; MultiplierUnlocked=$true; CurveShaperSupport=$true; PositiveCO=$true },
+    @{ Match='9950X3D(?!2)';  Model='Ryzen 9 9950X3D';               Arch='Zen 5'; Platform='AM5'; Cores=16; CCDs=2; Ccd0Cores=8; VCache='ccd0'; Form='desktop'; TDP=170; PPT=230; Tjmax=95; MultiplierUnlocked=$true; CurveShaperSupport=$true; PositiveCO=$true },
+    @{ Match='9900X3D';       Model='Ryzen 9 9900X3D';               Arch='Zen 5'; Platform='AM5'; Cores=12; CCDs=2; Ccd0Cores=6; VCache='ccd0'; Form='desktop'; TDP=120; PPT=162; Tjmax=95; MultiplierUnlocked=$true; CurveShaperSupport=$true; PositiveCO=$true },
+    @{ Match='9850X3D';       Model='Ryzen 7 9850X3D';               Arch='Zen 5'; Platform='AM5'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop'; TDP=120; PPT=162; Tjmax=95; MultiplierUnlocked=$true; CurveShaperSupport=$true; PositiveCO=$true },
+    @{ Match='9800X3D';       Model='Ryzen 7 9800X3D';               Arch='Zen 5'; Platform='AM5'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop'; TDP=120; PPT=162; Tjmax=95; MultiplierUnlocked=$true; CurveShaperSupport=$true; PositiveCO=$true },
 
     # ---- Zen 4 / AM5 ----
-    @{ Match='7950X3D';       Model='Ryzen 9 7950X3D';               Arch='Zen 4'; Platform='AM5'; Cores=16; CCDs=2; Ccd0Cores=8; VCache='ccd0'; Form='desktop' },
-    @{ Match='7900X3D';       Model='Ryzen 9 7900X3D';               Arch='Zen 4'; Platform='AM5'; Cores=12; CCDs=2; Ccd0Cores=6; VCache='ccd0'; Form='desktop' },
-    @{ Match='7800X3D';       Model='Ryzen 7 7800X3D';               Arch='Zen 4'; Platform='AM5'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop' },
-    @{ Match='7700X3D';       Model='Ryzen 7 7700X3D';               Arch='Zen 4'; Platform='AM5'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop' },
-    @{ Match='7600X3D';       Model='Ryzen 5 7600X3D';               Arch='Zen 4'; Platform='AM5'; Cores=6;  CCDs=1; Ccd0Cores=6; VCache='all';  Form='desktop' },
-    @{ Match='7500X3D';       Model='Ryzen 5 7500X3D';               Arch='Zen 4'; Platform='AM5'; Cores=6;  CCDs=1; Ccd0Cores=6; VCache='all';  Form='desktop' },
-    @{ Match='7945HX3D';      Model='Ryzen 9 7945HX3D (mobile)';     Arch='Zen 4'; Platform='FL1'; Cores=16; CCDs=2; Ccd0Cores=8; VCache='ccd0'; Form='mobile'  },
+    @{ Match='7950X3D';       Model='Ryzen 9 7950X3D';               Arch='Zen 4'; Platform='AM5'; Cores=16; CCDs=2; Ccd0Cores=8; VCache='ccd0'; Form='desktop'; TDP=120; PPT=162; Tjmax=89; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
+    @{ Match='7900X3D';       Model='Ryzen 9 7900X3D';               Arch='Zen 4'; Platform='AM5'; Cores=12; CCDs=2; Ccd0Cores=6; VCache='ccd0'; Form='desktop'; TDP=120; PPT=162; Tjmax=89; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
+    @{ Match='7800X3D';       Model='Ryzen 7 7800X3D';               Arch='Zen 4'; Platform='AM5'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop'; TDP=120; PPT=162; Tjmax=89; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
+    @{ Match='7700X3D';       Model='Ryzen 7 7700X3D';               Arch='Zen 4'; Platform='AM5'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop'; TDP=120; PPT=162; Tjmax=89; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
+    @{ Match='7600X3D';       Model='Ryzen 5 7600X3D';               Arch='Zen 4'; Platform='AM5'; Cores=6;  CCDs=1; Ccd0Cores=6; VCache='all';  Form='desktop'; TDP=120; PPT=162; Tjmax=89; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
+    @{ Match='7500X3D';       Model='Ryzen 5 7500X3D';               Arch='Zen 4'; Platform='AM5'; Cores=6;  CCDs=1; Ccd0Cores=6; VCache='all';  Form='desktop'; TDP=120; PPT=162; Tjmax=89; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
+    @{ Match='7945HX3D';      Model='Ryzen 9 7945HX3D (mobile)';     Arch='Zen 4'; Platform='FL1'; Cores=16; CCDs=2; Ccd0Cores=8; VCache='ccd0'; Form='mobile'; TDP=120; PPT=162; Tjmax=89; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
 
     # ---- Zen 3 / AM4 ----
-    @{ Match='5800X3D';       Model='Ryzen 7 5800X3D';               Arch='Zen 3'; Platform='AM4'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop' },
-    @{ Match='5700X3D';       Model='Ryzen 7 5700X3D';               Arch='Zen 3'; Platform='AM4'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop' },
-    @{ Match='5600X3D';       Model='Ryzen 5 5600X3D';               Arch='Zen 3'; Platform='AM4'; Cores=6;  CCDs=1; Ccd0Cores=6; VCache='all';  Form='desktop' },
-    @{ Match='5500X3D';       Model='Ryzen 5 5500X3D';               Arch='Zen 3'; Platform='AM4'; Cores=6;  CCDs=1; Ccd0Cores=6; VCache='all';  Form='desktop' }
+    @{ Match='5800X3D';       Model='Ryzen 7 5800X3D';               Arch='Zen 3'; Platform='AM4'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop'; TDP=105; PPT=142; Tjmax=90; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
+    @{ Match='5700X3D';       Model='Ryzen 7 5700X3D';               Arch='Zen 3'; Platform='AM4'; Cores=8;  CCDs=1; Ccd0Cores=8; VCache='all';  Form='desktop'; TDP=105; PPT=142; Tjmax=90; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
+    @{ Match='5600X3D';       Model='Ryzen 5 5600X3D';               Arch='Zen 3'; Platform='AM4'; Cores=6;  CCDs=1; Ccd0Cores=6; VCache='all';  Form='desktop'; TDP=105; PPT=142; Tjmax=90; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false },
+    @{ Match='5500X3D';       Model='Ryzen 5 5500X3D';               Arch='Zen 3'; Platform='AM4'; Cores=6;  CCDs=1; Ccd0Cores=6; VCache='all';  Form='desktop'; TDP=105; PPT=142; Tjmax=90; MultiplierUnlocked=$false; CurveShaperSupport=$false; PositiveCO=$false }
 )
 
 function Get-X3DCatalog { return $script:X3DCatalog }

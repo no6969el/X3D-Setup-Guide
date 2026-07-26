@@ -51,7 +51,6 @@ The X3D Tuning Kit includes scripts that support both human-readable output and 
 2. **AI-Readable Output**: Structured JSON output that can be parsed by AI systems for automated analysis and decision-making
 
 ### Key Scripts with Dual-Format Support:
-
 - **X3D-Profiles.ps1**: Core CPU detection script that provides both human-readable profile information and structured JSON output for AI systems
 - **Pre-Race-Quiet.ps1**: System quieting script with both status reporting and structured data for AI analysis
 - **Post-Race-Restore.ps1**: System restoration script with dual-format output capabilities
