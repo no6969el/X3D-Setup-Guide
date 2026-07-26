@@ -1,6 +1,6 @@
 # X3D First-Time Setup & Optimization Guide
 
-[!IMPORTANT] This project is now in the beta testing phase! 
+**!IMPORTANT** This project is now in the beta testing phase! 
 Please see the "Beta Testing & Chip-Specific Testing" section below for detailed instructions on how to contribute to our validation testing.
 
 This repository contains the first-time setup guide for AMD Ryzen 9 X3D processors. The guide takes users from a completely new PC build (or "never touched BIOS") to a verified, stable, repeatable X3D tune.
