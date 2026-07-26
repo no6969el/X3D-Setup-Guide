@@ -9,6 +9,7 @@ This project contains a collection of PowerShell scripts and documentation for s
   - `Capture-TrainingFingerprint.ps1` - Captures and compares memory training fingerprints
   - `Health-Report.ps1` - Provides system health assessment with dual-format output
   - `X3D-Profiles.ps1` - Manages X3D profiles with dual-format output
+  - All scripts in this directory now support dual-format output
 - `scripts/` - Contains standard utility PowerShell scripts for system configuration and optimization
   - `Add-Defender-Exclusions.ps1` - Adds exclusions to Windows Defender
   - `Apply-Guide-Extras.ps1` - Applies additional guide optimizations
@@ -34,12 +35,11 @@ This project contains a collection of PowerShell scripts and documentation for s
 
 ## Documentation Files
 - `README.md` - Main project documentation
-- `STATUS.md` - Current project status
+- `PROJECT_PLAN.md` - Complete development plan and roadmap
 - `phase0-bios-foundation.md` - BIOS foundation setup
 - `phase0-bios-foundation-final.md` - Final BIOS foundation
 - `phase1-windows-baseline.md` - Windows baseline configuration
 - `phase2-testing-validation.md` - Testing and validation procedures
-- `phase2-tool-development-plan.md` - Tool development plan
 - `phase2-tool-enhancement-plan.md` - Tool enhancement plan
 - `x3d-first-time-setup-plan.pdf` - First-time setup plan (PDF)
 - `FUTURE.pdf` - Future development plans (PDF)

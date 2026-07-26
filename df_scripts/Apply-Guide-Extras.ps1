@@ -32,6 +32,10 @@
     }
 #>
 
+param(
+    [string]$OutputFormat = "both"  # "human", "ai", or "both"
+)
+
 function Write-HumanOutput {
     param([string]$Message)
     Write-Host $Message
@@ -64,11 +68,15 @@ function Write-AIOutput {
 
 $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $admin) { 
-    Write-HumanOutput "ERROR: Run as Administrator."
-    Write-AIOutput @{
-        summary = "ERROR: Run as Administrator."
-        steps_completed = @()
-        status = "error"
+    if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+        Write-HumanOutput "ERROR: Run as Administrator."
+    }
+    if ($OutputFormat -eq "ai" -or $OutputFormat -eq "both") {
+        Write-AIOutput @{
+            summary = "ERROR: Run as Administrator."
+            steps_completed = @()
+            status = "error"
+        }
     }
     return 
 }
@@ -82,10 +90,14 @@ try {
     powercfg /setacvalueindex SCHEME_CURRENT $usbSub $usbSetting 0 | Out-Null
     powercfg /setdcvalueindex SCHEME_CURRENT $usbSub $usbSetting 0 | Out-Null
     powercfg /setactive SCHEME_CURRENT | Out-Null
-    Write-HumanOutput "   done - USB devices will no longer selectively suspend" -ForegroundColor Green
+    if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+        Write-HumanOutput "   done - USB devices will no longer selectively suspend" -ForegroundColor Green
+    }
     $usbSteps += "USB Selective Suspend disabled"
 } catch { 
-    Write-HumanOutput "   ! failed: $($_.Exception.Message)" -ForegroundColor Yellow 
+    if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+        Write-HumanOutput "   ! failed: $($_.Exception.Message)" -ForegroundColor Yellow 
+    }
     $usbSteps += "USB Selective Suspend failed"
 }
 
@@ -101,19 +113,27 @@ try {
     Set-Reg 'HKCU:\Software\Microsoft\GameBar'        'AutoGameModeEnabled'  0
     Set-Reg 'HKCU:\Software\Microsoft\GameBar'        'AllowAutoGameMode'    0
     Set-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR' 'AllowGameDVR' 0
-    Write-HumanOutput "   done - Game Mode/Bar/DVR disabled" -ForegroundColor Green
+    if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+        Write-HumanOutput "   done - Game Mode/Bar/DVR disabled" -ForegroundColor Green
+    }
     $gameSteps += "Game Mode/Bar/DVR disabled"
 } catch { 
-    Write-HumanOutput "   ! failed: $($_.Exception.Message)" -ForegroundColor Yellow 
+    if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+        Write-HumanOutput "   ! failed: $($_.Exception.Message)" -ForegroundColor Yellow 
+    }
     $gameSteps += "Game Mode/Bar/DVR failed"
 }
 
-Write-HumanOutput ""
-Write-HumanOutput "Done. No reboot needed. (Undo with Undo-Guide-Extras.ps1)" -ForegroundColor Yellow
+if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+    Write-HumanOutput ""
+    Write-HumanOutput "Done. No reboot needed. (Undo with Undo-Guide-Extras.ps1)" -ForegroundColor Yellow
+}
 
 # --- AI Output ---
-Write-AIOutput @{
-    summary = "Applied guide extras: USB Selective Suspend OFF and Game Mode/Bar/DVR OFF"
-    steps_completed = $usbSteps + $gameSteps
-    status = "completed"
+if ($OutputFormat -eq "ai" -or $OutputFormat -eq "both") {
+    Write-AIOutput @{
+        summary = "Applied guide extras: USB Selective Suspend OFF and Game Mode/Bar/DVR OFF"
+        steps_completed = $usbSteps + $gameSteps
+        status = "completed"
+    }
 }

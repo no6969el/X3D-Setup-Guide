@@ -34,6 +34,10 @@
     }
 #>
 
+param(
+    [string]$OutputFormat = "both"  # "human", "ai", or "both"
+)
+
 function Write-HumanOutput {
     param([string]$Message)
     Write-Host $Message
@@ -68,23 +72,31 @@ function Write-AIOutput {
 
 $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $admin) { 
-    Write-HumanOutput "ERROR: right-click PowerShell -> Run as Administrator, then re-run."
-    Write-AIOutput @{
-        summary = "ERROR: right-click PowerShell -> Run as Administrator, then re-run."
-        folders_excluded = @()
-        processes_excluded = @()
-        status = "error"
+    if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+        Write-HumanOutput "ERROR: right-click PowerShell -> Run as Administrator, then re-run."
+    }
+    if ($OutputFormat -eq "ai" -or $OutputFormat -eq "both") {
+        Write-AIOutput @{
+            summary = "ERROR: right-click PowerShell -> Run as Administrator, then re-run."
+            folders_excluded = @()
+            processes_excluded = @()
+            status = "error"
+        }
     }
     return 
 }
 
 if (-not (Get-Command Add-MpPreference -ErrorAction SilentlyContinue)) {
-    Write-HumanOutput "ERROR: Windows Defender cmdlets not available (third-party AV?). Add exclusions in that product instead."
-    Write-AIOutput @{
-        summary = "ERROR: Windows Defender cmdlets not available (third-party AV?). Add exclusions in that product instead."
-        folders_excluded = @()
-        processes_excluded = @()
-        status = "error"
+    if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+        Write-HumanOutput "ERROR: Windows Defender cmdlets not available (third-party AV?). Add exclusions in that product instead."
+    }
+    if ($OutputFormat -eq "ai" -or $OutputFormat -eq "both") {
+        Write-AIOutput @{
+            summary = "ERROR: Windows Defender cmdlets not available (third-party AV?). Add exclusions in that product instead."
+            folders_excluded = @()
+            processes_excluded = @()
+            status = "error"
+        }
     }
     return 
 }
@@ -120,13 +132,17 @@ foreach ($root in (Get-PSDrive -PSProvider FileSystem -ErrorAction SilentlyConti
 $paths = $paths | Sort-Object -Unique
 
 if (-not $paths) {
-    Write-HumanOutput "Could not auto-find the iRacing install folder." -ForegroundColor Yellow
-    Write-HumanOutput "Edit this script and add your install path to the \$subs list above, then re-run." -ForegroundColor Yellow
-    Write-AIOutput @{
-        summary = "Could not auto-find the iRacing install folder."
-        folders_excluded = @()
-        processes_excluded = @()
-        status = "warning"
+    if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+        Write-HumanOutput "Could not auto-find the iRacing install folder." -ForegroundColor Yellow
+        Write-HumanOutput "Edit this script and add your install path to the \$subs list above, then re-run." -ForegroundColor Yellow
+    }
+    if ($OutputFormat -eq "ai" -or $OutputFormat -eq "both") {
+        Write-AIOutput @{
+            summary = "Could not auto-find the iRacing install folder."
+            folders_excluded = @()
+            processes_excluded = @()
+            status = "warning"
+        }
     }
     return
 }
@@ -150,21 +166,25 @@ foreach ($ex in 'iRacingSim64DX11.exe','iRacingUI.exe','iRacingService64.exe') {
 }
 
 # --- confirm ---
-Write-HumanOutput ""
-Write-HumanOutput "Current Defender exclusions now set:" -ForegroundColor Cyan
-$prefs = Get-MpPreference
-Write-HumanOutput "  Paths:" -ForegroundColor Gray
-$prefs.ExclusionPath | ForEach-Object { Write-HumanOutput "    $_" }
-Write-HumanOutput "  Processes:" -ForegroundColor Gray
-$prefs.ExclusionProcess | ForEach-Object { Write-HumanOutput "    $_" }
+if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {
+    Write-HumanOutput ""
+    Write-HumanOutput "Current Defender exclusions now set:" -ForegroundColor Cyan
+    $prefs = Get-MpPreference
+    Write-HumanOutput "  Paths:" -ForegroundColor Gray
+    $prefs.ExclusionPath | ForEach-Object { Write-HumanOutput "    $_" }
+    Write-HumanOutput "  Processes:" -ForegroundColor Gray
+    $prefs.ExclusionProcess | ForEach-Object { Write-HumanOutput "    $_" }
 
-Write-HumanOutput ""
-Write-HumanOutput "Done. Defender still protects everything else - it just won't scan iRacing's files now." -ForegroundColor Green
+    Write-HumanOutput ""
+    Write-HumanOutput "Done. Defender still protects everything else - it just won't scan iRacing's files now." -ForegroundColor Green
+}
 
 # --- AI Output ---
-Write-AIOutput @{
-    summary = "Added Windows Defender exclusions for iRacing folders and processes"
-    folders_excluded = $foldersAdded
-    processes_excluded = $processesAdded
-    status = "completed"
+if ($OutputFormat -eq "ai" -or $OutputFormat -eq "both") {
+    Write-AIOutput @{
+        summary = "Added Windows Defender exclusions for iRacing folders and processes"
+        folders_excluded = $foldersAdded
+        processes_excluded = $processesAdded
+        status = "completed"
+    }
 }
