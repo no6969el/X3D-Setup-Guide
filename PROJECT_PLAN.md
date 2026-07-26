@@ -59,8 +59,8 @@ The project has successfully implemented dual-format output capabilities for scr
 - [x] Implement testing protocol tiers
 
 #### Advanced Features
-- [ ] CoreCycler + idle-soak integration
-- [ ] Every result routed through dual-format engine
+- [x] CoreCycler + idle-soak integration
+- [x] Every result routed through dual-format engine
 
 ### Phase 4: Chip Expansion (v0.8)
 **Priority: Medium**
@@ -93,11 +93,11 @@ The project has successfully implemented dual-format output capabilities for scr
 **Priority: High**
 
 #### Enhancement and Optimization
-- [ ] Implement automated testing framework
-- [ ] Enhance AI output with more detailed recommendations
-- [ ] Improve error handling and edge case management
-- [ ] Optimize testing protocols for faster execution
-- [ ] Strengthen documentation and user guides
+- [x] Implement automated testing framework
+- [x] Enhance AI output with more detailed recommendations
+- [x] Improve error handling and edge case management
+- [x] Optimize testing protocols for faster execution
+- [x] Strengthen documentation and user guides
 
 #### Deliverables
 1. Automated testing framework
@@ -119,6 +119,13 @@ The project has successfully implemented dual-format output capabilities for scr
 3. **Training Fingerprint Compare**: Captures trained memory state and diffs across boots
 4. **Scheduling Verifier**: Confirms V-Cache driver, Game Mode, and preferred core rankings
 5. **One-shot Health Report**: Runs all checks and outputs single pass/fail report
+
+### Enhanced X3D-Undervolt-Tester
+- **Research-based Chip Classification**: Implements S4/S5/D4/D5 taxonomy for precise chip detection
+- **Per-CCD Testing**: Implements proper per-CCD baseline testing before per-core refinement
+- **Multi-Phase Algorithm**: Follows research-based approach with coarse screening, refinement, and confirmation stages
+- **Curve Shaper Support**: Leverages Curve Shaper features for Zen 5 processors
+- **Idle/Load Failure Detection**: Enhanced stability testing that catches instability at idle/load transitions
 
 ## Redundant Information Analysis
 

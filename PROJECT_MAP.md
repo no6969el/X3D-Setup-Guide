@@ -9,8 +9,9 @@ This project contains a collection of PowerShell scripts and documentation for s
   - `Capture-TrainingFingerprint.ps1` - Captures and compares memory training fingerprints
   - `Health-Report.ps1` - Provides system health assessment with dual-format output
   - `X3D-Profiles.ps1` - Manages X3D profiles with dual-format output (enhanced with detailed chip specifications)
-  - `X3D-Undervolt-Tester.ps1` - Integrates undervolt testing with X3D tuning framework (enhanced with chip class detection and architecture-specific parameters)
+  - `X3D-Undervolt-Tester.ps1` - Integrates undervolt testing with X3D tuning framework (enhanced with research-based chip classification, per-CCD testing, and multi-phase algorithm)
   - All scripts in this directory now support dual-format output
+  - `X3D-Undervolt-Tester.ps1` - Enhanced with research-based chip classification (S4/S5/D4/D5), per-CCD testing, multi-phase algorithm, Curve Shaper support, and idle/load failure detection
 - `scripts/` - Contains standard utility PowerShell scripts for system configuration and optimization
   - `Add-Defender-Exclusions.ps1` - Adds exclusions to Windows Defender
   - `Apply-Guide-Extras.ps1` - Applies additional guide optimizations

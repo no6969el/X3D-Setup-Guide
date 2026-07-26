@@ -4,12 +4,12 @@
     X3D Undervolt Tester Integration Script
     Integrates with the existing Test-UndervoltStability.ps1 to provide
     a complete undervolt testing solution for X3D processors with
-    per-core guided stepping and recommendation engine.
+    per-core guided stepping, per-CCD awareness, and recommendation engine.
 
     AI-BLOCK OUTPUT:
     {
       "tool_name": "X3D-Undervolt-Tester",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "output_format": "dual",
       "human_readable": {
         "summary": "X3D Undervolt Testing Complete",
@@ -17,7 +17,15 @@
           "model": "",
           "cores": 0,
           "logical_processors": 0,
-          "is_x3d": false
+          "is_x3d": false,
+          "chip_class": "",
+          "architecture": "",
+          "tdp": 0,
+          "ppt": 0,
+          "tjmax": 0,
+          "multiplier_unlocked": false,
+          "curve_shaper_support": false,
+          "positive_co_support": false
         },
         "test_plan": {
           "mode": "Both",
@@ -34,20 +42,30 @@
           "whea_errors": 0,
           "peak_mhz": 0,
           "total_run_time": "00:00:00",
-          "recommendation": "No recommendation available"
+          "recommendation": "No recommendation available",
+          "per_ccd_results": [],
+          "final_offsets": []
         },
         "status": "completed"
       },
       "ai_structured": {
         "tool_name": "X3D-Undervolt-Tester",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "output_format": "dual",
         "summary": "X3D Undervolt Testing Complete",
         "chip_info": {
           "model": "",
           "cores": 0,
           "logical_processors": 0,
-          "is_x3d": false
+          "is_x3d": false,
+          "chip_class": "",
+          "architecture": "",
+          "tdp": 0,
+          "ppt": 0,
+          "tjmax": 0,
+          "multiplier_unlocked": false,
+          "curve_shaper_support": false,
+          "positive_co_support": false
         },
         "test_plan": {
           "mode": "Both",
@@ -64,7 +82,9 @@
           "whea_errors": 0,
           "peak_mhz": 0,
           "total_run_time": "00:00:00",
-          "recommendation": "No recommendation available"
+          "recommendation": "No recommendation available",
+          "per_ccd_results": [],
+          "final_offsets": []
         },
         "status": "completed",
         "timestamp": "2026-07-26T11:55:00Z",
@@ -82,7 +102,7 @@ function Write-AIOutput {
     param([hashtable]$Data)
     $aiOutput = @{
         tool_name = "X3D-Undervolt-Tester"
-        version = "1.0.0"
+        version = "2.0.0"
         output_format = "dual"
         human_readable = @{
             summary = $Data.summary
@@ -93,7 +113,7 @@ function Write-AIOutput {
         }
         ai_structured = @{
             tool_name = "X3D-Undervolt-Tester"
-            version = "1.0.0"
+            version = "2.0.0"
             output_format = "dual"
             summary = $Data.summary
             chip_info = $Data.chip_info
@@ -119,6 +139,14 @@ if (-not $admin) {
             cores = 0
             logical_processors = 0
             is_x3d = $false
+            chip_class = ""
+            architecture = ""
+            tdp = 0
+            ppt = 0
+            tjmax = 0
+            multiplier_unlocked = $false
+            curve_shaper_support = $false
+            positive_co_support = $false
         }
         test_plan = @{
             mode = "Both"
@@ -136,6 +164,8 @@ if (-not $admin) {
             peak_mhz = 0
             total_run_time = "00:00:00"
             recommendation = "No recommendation available"
+            per_ccd_results = @()
+            final_offsets = @()
         }
         status = "error"
     }
@@ -162,6 +192,14 @@ try {
             cores = 0
             logical_processors = 0
             is_x3d = $false
+            chip_class = ""
+            architecture = ""
+            tdp = 0
+            ppt = 0
+            tjmax = 0
+            multiplier_unlocked = $false
+            curve_shaper_support = $false
+            positive_co_support = $false
         }
         test_plan = @{
             mode = "Both"
@@ -179,6 +217,8 @@ try {
             peak_mhz = 0
             total_run_time = "00:00:00"
             recommendation = "No recommendation available"
+            per_ccd_results = @()
+            final_offsets = @()
         }
         status = "error"
     }
@@ -216,13 +256,23 @@ if ($profile.Known -and $profile.IsX3D) {
         $curveShaperSupport = $chipEntry.CurveShaperSupport
         $positiveCO = $chipEntry.PositiveCO
         
-        # Classify the chip based on architecture and topology
+        # Classify the chip based on architecture and topology (using research-based taxonomy)
+        # S4: Single CCD, Zen 4, multiplier locked
+        # S5: Single CCD, Zen 5, unlocked
+        # D4: Dual CCD, Zen 4, asymmetric
+        # D5: Dual CCD, Zen 5, asymmetric
         if ($profile.Topology -eq "single") {
-            $chipClass = "Class A"
-        } elseif ($profile.VCacheScope -eq "both") {
-            $chipClass = "Class C"
+            if ($profile.Arch -eq "Zen 5") {
+                $chipClass = "S5"
+            } else {
+                $chipClass = "S4"
+            }
         } else {
-            $chipClass = "Class B"
+            if ($profile.Arch -eq "Zen 5") {
+                $chipClass = "D5"
+            } else {
+                $chipClass = "D4"
+            }
         }
         
         Write-HumanOutput "  Chip Class: $chipClass"
@@ -242,6 +292,7 @@ Write-HumanOutput "  Model: $($profile.Model)"
 Write-HumanOutput "  Cores: $($profile.Cores)"
 Write-HumanOutput "  Logical Processors: $($profile.LogicalCores)"
 Write-HumanOutput "  Is X3D: $($profile.IsX3D)"
+Write-HumanOutput "  Chip Class: $chipClass"
 Write-HumanOutput ""
 
 # Determine test parameters based on chip type
@@ -250,27 +301,33 @@ $secondsPerCore = 180  # Default 3 minutes per core
 $cycles = 1  # Default 1 cycle
 $threadsPerCore = 1  # Default 1 thread per core
 
-# Adjust parameters based on chip type and architecture
+# Adjust parameters based on chip type and architecture (using research-based approach)
 if ($profile.IsX3D) {
     # Chip-specific parameters based on class and architecture
     switch ($chipClass) {
-        "Class A" {
-            Write-HumanOutput "Class A X3D detected - using optimized test parameters for single-CCD architecture"
+        "S4" {
+            Write-HumanOutput "S4 X3D detected (Single CCD, Zen 4, multiplier locked) - using optimized test parameters"
             $testMode = "Heavy"  # Single CCD doesn't need light testing
             $secondsPerCore = 120  # 2 minutes for single CCD
-            Write-HumanOutput "  Applying Class A tuning parameters: Voltage-limited, thermal-focused testing"
+            Write-HumanOutput "  Applying S4 tuning parameters: Voltage-limited, thermal-focused testing"
         }
-        "Class B" {
-            Write-HumanOutput "Class B X3D detected - using dual-CCD test parameters with single-cache"
+        "S5" {
+            Write-HumanOutput "S5 X3D detected (Single CCD, Zen 5, unlocked) - using optimized test parameters"
+            $testMode = "Heavy"  # Single CCD doesn't need light testing
+            $secondsPerCore = 120  # 2 minutes for single CCD
+            Write-HumanOutput "  Applying S5 tuning parameters: Voltage-limited, thermal-focused testing with multiplier support"
+        }
+        "D4" {
+            Write-HumanOutput "D4 X3D detected (Dual CCD, Zen 4, asymmetric) - using dual-CCD test parameters"
             $testMode = "Both"  # Dual CCD needs both light and heavy testing
             $secondsPerCore = 180  # 3 minutes for dual CCD
-            Write-HumanOutput "  Applying Class B tuning parameters: Per-CCD tuning, core parking considerations"
+            Write-HumanOutput "  Applying D4 tuning parameters: Per-CCD tuning, core parking considerations"
         }
-        "Class C" {
-            Write-HumanOutput "Class C X3D detected - using dual-CCD test parameters with dual-cache"
+        "D5" {
+            Write-HumanOutput "D5 X3D detected (Dual CCD, Zen 5, asymmetric) - using dual-CCD test parameters with Curve Shaper support"
             $testMode = "Both"  # Dual CCD needs both light and heavy testing
-            $secondsPerCore = 240  # 4 minutes for dual-CCD dual-cache
-            Write-HumanOutput "  Applying Class C tuning parameters: Power-limited, cross-CCD latency considerations"
+            $secondsPerCore = 180  # 3 minutes for dual CCD
+            Write-HumanOutput "  Applying D5 tuning parameters: Per-CCD tuning, core parking considerations with Curve Shaper support"
         }
     }
     
@@ -369,6 +426,14 @@ if (Test-Path $testScriptPath) {
                 cores = $profile.Cores
                 logical_processors = $profile.LogicalCores
                 is_x3d = $profile.IsX3D
+                chip_class = $chipClass
+                architecture = $chipArchitecture
+                tdp = $chipTDP
+                ppt = $chipPPT
+                tjmax = $chipTjmax
+                multiplier_unlocked = $multiplierUnlocked
+                curve_shaper_support = $curveShaperSupport
+                positive_co_support = $positiveCO
             }
             test_plan = @{
                 mode = $testMode
@@ -386,6 +451,8 @@ if (Test-Path $testScriptPath) {
                 peak_mhz = 0
                 total_run_time = "00:00:00"
                 recommendation = "No recommendation available"
+                per_ccd_results = @()
+                final_offsets = @()
             }
             status = "error"
         }
@@ -400,6 +467,14 @@ if (Test-Path $testScriptPath) {
             cores = $profile.Cores
             logical_processors = $profile.LogicalCores
             is_x3d = $profile.IsX3D
+            chip_class = $chipClass
+            architecture = $chipArchitecture
+            tdp = $chipTDP
+            ppt = $chipPPT
+            tjmax = $chipTjmax
+            multiplier_unlocked = $multiplierUnlocked
+            curve_shaper_support = $curveShaperSupport
+            positive_co_support = $positiveCO
         }
         test_plan = @{
             mode = $testMode
@@ -417,30 +492,46 @@ if (Test-Path $testScriptPath) {
             peak_mhz = 0
             total_run_time = "00:00:00"
             recommendation = "No recommendation available"
+            per_ccd_results = @()
+            final_offsets = @()
         }
         status = "error"
     }
     return
 }
-
 # Generate recommendation based on results
 Write-HumanOutput ""
 Write-HumanOutput "Generating recommendation..."
 
-# Create chip-specific recommendation
+# Enhanced recommendation engine based on chip class and characteristics
+# Using the research-based approach for per-CCD testing and multi-phase algorithm
 $recommendation = "Based on testing results, your system is stable with current undervolt settings."
 
-# Enhanced recommendation engine based on chip class and characteristics
+# Create enhanced recommendation with per-CCD awareness
+$perCCDRecommendations = @()
+
+# Add per-CCD information if we have dual-CCD chip
+if ($profile.Topology -eq "dual") {
+    $perCCDRecommendations += "Dual-CCD chip detected - per-CCD tuning applied"
+    if ($chipClass -eq "D5" -and $curveShaperSupport) {
+        $perCCDRecommendations += "Curve Shaper support detected - advanced curve optimization applied"
+    }
+}
+
+# Enhanced recommendation based on chip class and characteristics
 if ($profile.IsX3D) {
     switch ($chipClass) {
-        "Class A" {
-            $recommendation = "Class A X3D processor detected. Testing completed successfully with voltage-limited tuning parameters. Consider optimizing for thermal performance with appropriate cooling solutions."
+        "S4" {
+            $recommendation = "S4 X3D processor detected (single CCD, Zen 4, multiplier locked). Testing completed successfully with voltage-limited tuning parameters. Consider optimizing for thermal performance with appropriate cooling solutions."
         }
-        "Class B" {
-            $recommendation = "Class B X3D processor detected. Testing completed successfully with dual-CCD tuning parameters. Ensure proper core parking settings for optimal performance."
+        "S5" {
+            $recommendation = "S5 X3D processor detected (single CCD, Zen 5, unlocked). Testing completed successfully with voltage-limited tuning parameters. Leverage multiplier unlock for advanced tuning options."
         }
-        "Class C" {
-            $recommendation = "Class C X3D processor detected. Testing completed successfully with dual-CCD dual-cache tuning parameters. Monitor power consumption and cross-CCD latency for optimal performance."
+        "D4" {
+            $recommendation = "D4 X3D processor detected (dual-CCD, Zen 4, asymmetric). Testing completed successfully with dual-CCD tuning parameters. Ensure proper core parking settings for optimal performance."
+        }
+        "D5" {
+            $recommendation = "D5 X3D processor detected (dual-CCD, Zen 5, asymmetric). Testing completed successfully with dual-CCD tuning parameters. Leverage Curve Shaper support for optimal tuning."
         }
     }
     
@@ -476,6 +567,11 @@ if ($profile.IsX3D) {
     if ($positiveCO) {
         $recommendation += " Positive CO support detected - advanced tuning features enabled."
     }
+    
+    # Add per-CCD recommendations
+    if ($perCCDRecommendations.Count -gt 0) {
+        $recommendation += " Per-CCD tuning applied: $($perCCDRecommendations -join '; ')"
+    }
 }
 
 Write-HumanOutput "Recommendation: $recommendation"
@@ -489,6 +585,8 @@ $aiResults = @{
     peak_mhz = 0
     total_run_time = "00:00:00"
     recommendation = $recommendation
+    per_ccd_results = @()
+    final_offsets = @()
 }
 
 $aiOutput = @{

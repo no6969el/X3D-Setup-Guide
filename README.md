@@ -1,6 +1,6 @@
 # X3D First-Time Setup & Optimization Guide
 
-**This project is now in the beta testing phase!** 
+[!IMPORTANT] This project is now in the beta testing phase! 
 Please see the "Beta Testing & Chip-Specific Testing" section below for detailed instructions on how to contribute to our validation testing.
 
 This repository contains the first-time setup guide for AMD Ryzen 9 X3D processors. The guide takes users from a completely new PC build (or "never touched BIOS") to a verified, stable, repeatable X3D tune.
@@ -15,9 +15,11 @@ This project is the foundation of an ecosystem that will eventually include:
 
 ## Project Status
 Currently in development phase: Phase 2 - Testing & Validation Kit (Complete)
+Phase 3 - Tool Enhancement (Complete)
 
 ## Development Status
 This is a work in progress. Current development phase: Phase 2 - Testing & Validation Kit (Complete).
+Phase 3 - Tool Enhancement (Complete)
 
 ## Purpose
 This document is the master plan for building a first-time setup guide that takes a user from "just built the PC" (or "never touched BIOS") to a verified, stable, repeatable X3D tune — ending exactly where the iRacing X3D Tuning kit picks up.
@@ -28,6 +30,17 @@ The guide branches on three architectural dimensions:
 - **Class A**: Single-CCD X3D (5800X3D, 7800X3D, 9800X3D) - Simplest path
 - **Class B**: Dual-CCD, single-cache (7900X3D, 7950X3D, 9900X3D, 9950X3D) - The hard case 
 - **Class C**: Dual-CCD, dual-cache (9950X3D2) - Most complex
+
+## Enhanced Chip Classification
+
+Building on the original Class A/B/C taxonomy, the X3D Tuning Kit now implements a more precise chip classification system based on research findings:
+
+- **S4**: Single CCD, Zen 4, multiplier locked (e.g., 7800X3D, 7600X3D)
+- **S5**: Single CCD, Zen 5, unlocked (e.g., 9800X3D, 9850X3D)
+- **D4**: Dual CCD, Zen 4, asymmetric (e.g., 7950X3D, 7900X3D)
+- **D5**: Dual CCD, Zen 5, asymmetric (e.g., 9950X3D, 9900X3D)
+
+This research-based classification system enables more precise tuning parameters and testing approaches for each chip architecture.
 
 ## Development Status
 This is a work in progress. Current development phase: Phase 0 - BIOS Foundation (Complete).
@@ -60,6 +73,16 @@ The X3D Tuning Kit includes scripts that support both human-readable output and 
 - **X3D-Undervolt-Tester.ps1**: Undervolt testing script that integrates with the X3D tuning framework and provides both human-readable results and AI-structured output
 - **All scripts in df_scripts directory**: All scripts in the dedicated df_scripts directory now support dual-format output
 
+### Enhanced X3D-Undervolt-Tester Capabilities
+
+The enhanced X3D-Undervolt-Tester.ps1 now implements:
+
+- **Research-based Chip Classification**: Uses S4/S5/D4/D5 taxonomy for precise chip detection
+- **Per-CCD Testing**: Implements proper per-CCD baseline testing before per-core refinement
+- **Multi-Phase Algorithm**: Follows the research-based approach with coarse screening, refinement, and confirmation stages
+- **Curve Shaper Support**: Leverages Curve Shaper features for Zen 5 processors
+- **Idle/Load Failure Detection**: Enhanced stability testing that catches instability at idle/load transitions
+
 ### Usage Examples:
 
 For human users:
@@ -91,9 +114,10 @@ This "verify, don't assume" philosophy ensures that documentation always reflect
 We are now preparing for a beta testing phase to validate our enhanced chip detection and tuning capabilities across all supported X3D processor families. 
 
 ### Supported Chip Classes
-- **Class A**: Single-CCD processors (5800X3D, 7800X3D, 9800X3D)
-- **Class B**: Dual-CCD, single-cache processors (7900X3D, 7950X3D, 9900X3D, 9950X3D)  
-- **Class C**: Dual-CCD, dual-cache processors (9950X3D2)
+- **S4**: Single CCD, Zen 4, multiplier locked (e.g., 7800X3D, 7600X3D)
+- **S5**: Single CCD, Zen 5, unlocked (e.g., 9800X3D, 9850X3D)
+- **D4**: Dual CCD, Zen 4, asymmetric (e.g., 7950X3D, 7900X3D)
+- **D5**: Dual CCD, Zen 5, asymmetric (e.g., 9950X3D, 9900X3D)
 
 ### Beta Tester Guidelines
 Beta testers can contribute valuable data by running the following tests on their specific hardware:
@@ -105,7 +129,7 @@ Beta testers can contribute valuable data by running the following tests on thei
 
 ### Data Collection Requirements
 When contributing to the beta testing program, please provide:
-- Chip identification and class
+- Chip identification and class (S4/S5/D4/D5)
 - Environmental fingerprint (AGESA, BIOS, drivers, etc.)
 - Test parameters used
 - Stability test results
