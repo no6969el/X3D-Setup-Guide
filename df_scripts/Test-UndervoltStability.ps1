@@ -655,7 +655,37 @@ try {
             $core = $order[$p]
             foreach ($phase in $phases) {
                 if ($script:abort) { break }
+                
+                # Implement crash sentinel system
+                $sentinelFile = Join-Path $tmp "uv_sentinel_${core}_${phase}.txt"
+                $resultFile = Join-Path $tmp "uv_res_${core}_${phase}.txt"
+                
+                # Mark test as started
+                $sentinelContent = @{
+                    core = $core
+                    phase = $phase
+                    started = Get-Date -Format "o"
+                    status = "running"
+                } | ConvertTo-Json -Compress
+                
+                Set-Content -Path $sentinelFile -Value $sentinelContent -Encoding UTF8
+                
                 $o = Invoke-CoreTest -Core $core -Cycle $cycle -Phase $phase -CorePos ($p+1) -CoreCount $order.Count
+                
+                # Update sentinel with result
+                $sentinelContent = @{
+                    core = $core
+                    phase = $phase
+                    started = $sentinelContent | ConvertFrom-Json | Select-Object -ExpandProperty started
+                    ended = Get-Date -Format "o"
+                    status = "completed"
+                    outcome = $o.Outcome
+                    whea = $o.Whea
+                    detail = $o.Detail
+                } | ConvertTo-Json -Compress
+                
+                Set-Content -Path $sentinelFile -Value $sentinelContent -Encoding UTF8
+                
                 $r = $results[$core]
                 if ($o.PeakMHz -gt $r.PeakMHz) { $r.PeakMHz = $o.PeakMHz }
                 $tag = "$phase"

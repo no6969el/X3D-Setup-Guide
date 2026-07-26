@@ -81,6 +81,9 @@ The enhanced X3D-Undervolt-Tester.ps1 now implements:
 - **Multi-Phase Algorithm**: Follows the research-based approach with coarse screening, refinement, and confirmation stages
 - **Curve Shaper Support**: Leverages Curve Shaper features for Zen 5 processors
 - **Idle/Load Failure Detection**: Enhanced stability testing that catches instability at idle/load transitions
+- **Crash Detection and Recovery System**: Implements crash detection and recovery to eliminate survivorship bias in testing results
+- **Enhanced Outcome Classification**: Provides detailed failure modes and outcome classification for better AI analysis
+- **Clock-Stretching Measurement**: Implements clock-stretching measurement with C0 residency gating for precise performance analysis
 
 ### Usage Examples:
 

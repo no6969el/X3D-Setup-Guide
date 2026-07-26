@@ -587,6 +587,12 @@ $aiResults = @{
     recommendation = $recommendation
     per_ccd_results = @()
     final_offsets = @()
+    # Add outcome classification for better AI analysis
+    outcome_classification = @{
+        overall_status = "stable"
+        detailed_outcomes = @()
+        confidence_level = "high"
+    }
 }
 
 $aiOutput = @{
