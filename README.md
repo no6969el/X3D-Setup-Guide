@@ -71,3 +71,15 @@ For AI systems:
 ```
 
 This dual-format approach ensures that the X3D tuning process can be effectively used by both human operators and automated systems, providing flexibility in how the tuning information is consumed and processed.
+
+## Documentation Update Protocol
+
+All changes to the X3D Tuning Kit are immediately documented to maintain consistency and quality. When modifications are made:
+
+- **STATUS.md** is updated with current progress and task completion
+- **PROJECT_MAP.md** is updated with new tools and capabilities
+- **PROJECT_PLAN.md** is updated with completed milestones
+- **README.md** is updated with new features and capabilities
+- **Chip_Expansion_Request_Sheet.md** is maintained for future expansion planning
+
+This "verify, don't assume" philosophy ensures that documentation always reflects the current state of the project.

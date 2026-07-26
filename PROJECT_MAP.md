@@ -33,6 +33,28 @@ This project contains a collection of PowerShell scripts and documentation for s
   - `Undo-Guide-Extras.ps1` - Undoes guide optimizations
   - `Undo-NIC-USB-IRQ-Affinity.ps1` - Undoes NIC/USB IRQ affinity
   - `Watch-TimerResolution.ps1` - Watches timer resolution changes
+- `scripts/` - Contains standard utility PowerShell scripts for system configuration and optimization
+  - `Add-Defender-Exclusions.ps1` - Adds exclusions to Windows Defender
+  - `Apply-Guide-Extras.ps1` - Applies additional guide optimizations
+  - `Check-Quiet-Status.ps1` - Checks current quiet mode status
+  - `Create-Launchers.ps1` - Creates application launchers
+  - `Enable-DiagnosticLogs.ps1` - Enables diagnostic logging
+  - `Enable-GlobalTimerResolution.ps1` - Enables global timer resolution
+  - `FullTrace.ps1` - Performs full system tracing
+  - `Post-Race-Restore.ps1` - Restores system after performance testing
+  - `Pre-Race-Quiet.ps1` - Sets up quiet mode before performance testing
+  - `Preflight-Check.ps1` - Performs preflight system checks
+  - `Repair-PerfCounters.ps1` - Repairs performance counters
+  - `Scan-Stutter-Events.ps1` - Scans for stutter events
+  - `Set-GPU-IRQ-Affinity.ps1` - Sets GPU IRQ affinity
+  - `Set-NIC-USB-IRQ-Affinity.ps1` - Sets NIC/USB IRQ affinity
+  - `Test-UndervoltStability.ps1` - Tests undervolt stability
+  - `Trace-QuietReverts.ps1` - Traces quiet mode reverts
+  - `Undo-GlobalTimerResolution.ps1` - Undoes global timer resolution
+  - `Undo-GPU-IRQ-Affinity.ps1` - Undoes GPU IRQ affinity
+  - `Undo-Guide-Extras.ps1` - Undoes guide optimizations
+  - `Undo-NIC-USB-IRQ-Affinity.ps1` - Undoes NIC/USB IRQ affinity
+  - `Watch-TimerResolution.ps1` - Watches timer resolution changes
 
 ## Documentation Files
 - `README.md` - Main project documentation

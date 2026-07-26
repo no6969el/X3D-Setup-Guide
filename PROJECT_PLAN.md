@@ -66,10 +66,10 @@ The project has successfully implemented dual-format output capabilities for scr
 **Priority: Medium**
 
 #### Class Expansion
-- [ ] Add Class A chips (single-CCD)
-- [ ] Add Class C chips (9950X3D2 dual-cache)
-- [ ] Add remaining Class B chips
-- [ ] Document Zen 4 vs Zen 5 divergences
+- [x] Add Class A chips (single-CCD)
+- [x] Add Class C chips (9950X3D2 dual-cache)
+- [x] Add remaining Class B chips
+- [x] Document Zen 4 vs Zen 5 divergences
 
 ### Phase 5: Delivery and Polish (v0.9 - v1.0)
 **Priority: High**
