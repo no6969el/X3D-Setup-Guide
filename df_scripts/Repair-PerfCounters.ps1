@@ -1,11 +1,9 @@
 <#
     Repair-PerfCounters.ps1
     ---------------------------------------------------------------
-    If every counter-based column in a FullTrace comes back empty
-    (per-core load, interrupt/DPC time, pagefaults), your Windows
-    performance counters are corrupt - a surprisingly common Windows
-    fault. This rebuilds them so the trace can measure the CCD split,
-    confirm the GPU-interrupt move, and expose periodic hitches.
+    Rebuilds Windows performance counters when a counter query comes
+    back empty. That is a common Windows fault and it hides per-core
+    load, interrupt time, and page faults from every tool that reads them.
 
     RUN AS ADMINISTRATOR, then REBOOT.
     
@@ -107,7 +105,7 @@ if ($wm) {
 }
 
 Write-Host ""
-Write-Host "Done. REBOOT, then re-run Preflight-Check - the per-core columns should populate." -ForegroundColor Green
+Write-Host "Done. REBOOT, then run the scan again to confirm counters respond." -ForegroundColor Green
 Write-Host "If they still don't populate, the deeper fix is rebuilding the WMI repository (search 'winmgmt salvagerepository')." -ForegroundColor DarkGray
 
 # --- AI Output ---

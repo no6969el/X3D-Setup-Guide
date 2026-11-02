@@ -1,4 +1,4 @@
-<#
+﻿<#
     X3D-Undervolt-Tester.ps1
     ---------------------------------------------------------------
     X3D Undervolt Tester Integration Script
@@ -94,8 +94,9 @@
 #>
 
 function Write-HumanOutput {
-    param([string]$Message)
-    Write-Host $Message
+    param([string]$Message, [string]$ForegroundColor)
+    if ($ForegroundColor) { Write-Host $Message -ForegroundColor $ForegroundColor }
+    else { Write-Host $Message }
 }
 
 function Write-AIOutput {
@@ -383,247 +384,94 @@ Write-HumanOutput "  Cycles: $cycles"
 Write-HumanOutput "  Threads per core: $threadsPerCore"
 Write-HumanOutput ""
 
-# Run the undervolt stability test
+
+# Run the real stability tester. Its CSV is the only result this wrapper reports.
 Write-HumanOutput "Starting undervolt stability test..."
-Write-HumanOutput "This may take several minutes depending on your system configuration."
+Write-HumanOutput "This may take a long time. Nothing in this script writes a voltage offset."
 
-# Execute the existing undervolt test script
 $testScriptPath = Join-Path $PSScriptRoot "Test-UndervoltStability.ps1"
-if (Test-Path $testScriptPath) {
-    try {
-        # Run the test with parameters
-        $testParams = @{
-            Mode = $testMode
-            SecondsPerCore = $secondsPerCore
-            Cycles = $cycles
-            ThreadsPerCore = $threadsPerCore
-            NoClocks = $true  # Don't show clocks to keep output clean
-        }
-        
-        # Create a temporary script that calls the test with our parameters
-        $tempScript = @"
-`$testParams = @{
-    Mode = '$testMode'
-    SecondsPerCore = $secondsPerCore
-    Cycles = $cycles
-    ThreadsPerCore = $threadsPerCore
-    NoClocks = `$true
-}
-
-& `"$testScriptPath`" @testParams
-"@
-        
-        # Execute the test
-        $result = Invoke-Expression $tempScript
-        
-        Write-HumanOutput "Undervolt test completed successfully."
-    } catch {
-        Write-HumanOutput "Error running undervolt test: $($_.Exception.Message)" -ForegroundColor Red
-        Write-AIOutput @{
-            summary = "Error running undervolt test"
-            chip_info = @{
-                model = $profile.Model
-                cores = $profile.Cores
-                logical_processors = $profile.LogicalCores
-                is_x3d = $profile.IsX3D
-                chip_class = $chipClass
-                architecture = $chipArchitecture
-                tdp = $chipTDP
-                ppt = $chipPPT
-                tjmax = $chipTjmax
-                multiplier_unlocked = $multiplierUnlocked
-                curve_shaper_support = $curveShaperSupport
-                positive_co_support = $positiveCO
-            }
-            test_plan = @{
-                mode = $testMode
-                seconds_per_core = $secondsPerCore
-                cycles = $cycles
-                threads_per_core = $threadsPerCore
-                cores_tested = @()
-                phases = @("Light", "Heavy")
-            }
-            results = @{
-                total_cores = 0
-                passed_cores = 0
-                failed_cores = 0
-                whea_errors = 0
-                peak_mhz = 0
-                total_run_time = "00:00:00"
-                recommendation = "No recommendation available"
-                per_ccd_results = @()
-                final_offsets = @()
-            }
-            status = "error"
-        }
-        return
-    }
-} else {
-    Write-HumanOutput "Error: Test-UndervoltStability.ps1 not found in df_scripts directory." -ForegroundColor Red
+if (-not (Test-Path $testScriptPath)) {
+    Write-HumanOutput "Error: Test-UndervoltStability.ps1 was not found. No stability claim is made." -ForegroundColor Red
     Write-AIOutput @{
-        summary = "Error: Test-UndervoltStability.ps1 not found"
-        chip_info = @{
-            model = $profile.Model
-            cores = $profile.Cores
-            logical_processors = $profile.LogicalCores
-            is_x3d = $profile.IsX3D
-            chip_class = $chipClass
-            architecture = $chipArchitecture
-            tdp = $chipTDP
-            ppt = $chipPPT
-            tjmax = $chipTjmax
-            multiplier_unlocked = $multiplierUnlocked
-            curve_shaper_support = $curveShaperSupport
-            positive_co_support = $positiveCO
-        }
-        test_plan = @{
-            mode = $testMode
-            seconds_per_core = $secondsPerCore
-            cycles = $cycles
-            threads_per_core = $threadsPerCore
-            cores_tested = @()
-            phases = @("Light", "Heavy")
-        }
-        results = @{
-            total_cores = 0
-            passed_cores = 0
-            failed_cores = 0
-            whea_errors = 0
-            peak_mhz = 0
-            total_run_time = "00:00:00"
-            recommendation = "No recommendation available"
-            per_ccd_results = @()
-            final_offsets = @()
-        }
+        summary = "Test-UndervoltStability.ps1 was not found. No stability claim is made."
+        chip_info = @{ model = $profile.Model; cores = $profile.Cores; logical_processors = $profile.LogicalCores; is_x3d = $profile.IsX3D; chip_class = $chipClass; architecture = $chipArchitecture; tdp = $chipTDP; ppt = $chipPPT; tjmax = $chipTjmax; multiplier_unlocked = $multiplierUnlocked; curve_shaper_support = $curveShaperSupport; positive_co_support = $positiveCO }
+        test_plan = @{ mode = $testMode; seconds_per_core = $secondsPerCore; cycles = $cycles; threads_per_core = $threadsPerCore; cores_tested = @(); phases = @($testMode) }
+        results = @{ total_cores = 0; passed_cores = 0; failed_cores = 0; failed_core_ids = @(); whea_errors = 0; peak_mhz = 0; total_run_time = "00:00:00"; recommendation = "No result file. No stability claim is made."; final_offsets = @() }
         status = "error"
     }
     return
 }
-# Generate recommendation based on results
+
+$started = Get-Date
+try {
+    & $testScriptPath -Mode $testMode -SecondsPerCore $secondsPerCore -Cycles $cycles -ThreadsPerCore $threadsPerCore -NoClocks
+} catch {
+    Write-HumanOutput "Error running undervolt test: $($_.Exception.Message)" -ForegroundColor Red
+}
+
+$csv = Get-ChildItem -LiteralPath $PSScriptRoot -Filter 'undervolt_results_*.csv' -ErrorAction SilentlyContinue |
+    Where-Object { $_.LastWriteTime -ge $started.AddSeconds(-5) } |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -First 1
+
+$passed = 0
+$failed = 0
+$whea = 0
+$peak = 0
+$failedIds = @()
+$coresTested = @()
+$haveResults = $false
+if ($csv) {
+    $rows = @(Import-Csv -LiteralPath $csv.FullName)
+    $haveResults = $rows.Count -gt 0
+    foreach ($row in $rows) {
+        $coresTested += $row.Core
+        if ($row.Status -eq 'pass') { $passed++ }
+        $rowWhea = 0
+        try { $rowWhea = [int]$row.Whea } catch { $rowWhea = 0 }
+        $whea += $rowWhea
+        if ($row.Status -eq 'FAIL' -or $row.Status -eq 'WHEA' -or $rowWhea -gt 0) {
+            $failed++
+            $failedIds += $row.Core
+        }
+        try { if ([int]$row.PeakMHz -gt $peak) { $peak = [int]$row.PeakMHz } } catch {}
+    }
+}
+
+if (-not $haveResults) {
+    $summary = "The stability tester did not write a result CSV. No stability claim is made. Curve Optimizer was not changed."
+    Write-HumanOutput $summary -ForegroundColor Yellow
+    Write-AIOutput @{
+        summary = $summary
+        chip_info = @{ model = $profile.Model; cores = $profile.Cores; logical_processors = $profile.LogicalCores; is_x3d = $profile.IsX3D; chip_class = $chipClass; architecture = $chipArchitecture; tdp = $chipTDP; ppt = $chipPPT; tjmax = $chipTjmax; multiplier_unlocked = $multiplierUnlocked; curve_shaper_support = $curveShaperSupport; positive_co_support = $positiveCO }
+        test_plan = @{ mode = $testMode; seconds_per_core = $secondsPerCore; cycles = $cycles; threads_per_core = $threadsPerCore; cores_tested = @(); phases = @($testMode) }
+        results = @{ total_cores = 0; passed_cores = 0; failed_cores = 0; failed_core_ids = @(); whea_errors = 0; peak_mhz = 0; total_run_time = "00:00:00"; recommendation = $summary; final_offsets = @() }
+        status = "error"
+    }
+    return
+}
+
+$recommendation = "Result file $($csv.Name): $passed passed, $failed failed, $whea WHEA. Curve Optimizer was not changed."
+if ($failedIds.Count -gt 0) {
+    $recommendation = "Cores $($failedIds -join ', ') failed or logged WHEA. Curve Optimizer was not changed. Windows cannot write that offset."
+}
 Write-HumanOutput ""
-Write-HumanOutput "Generating recommendation..."
+Write-HumanOutput $recommendation
 
-# Enhanced recommendation engine based on chip class and characteristics
-# Using the research-based approach for per-CCD testing and multi-phase algorithm
-$recommendation = "Based on testing results, your system is stable with current undervolt settings."
-
-# Create enhanced recommendation with per-CCD awareness
-$perCCDRecommendations = @()
-
-# Add per-CCD information if we have dual-CCD chip
-if ($profile.Topology -eq "dual") {
-    $perCCDRecommendations += "Dual-CCD chip detected - per-CCD tuning applied"
-    if ($chipClass -eq "D5" -and $curveShaperSupport) {
-        $perCCDRecommendations += "Curve Shaper support detected - advanced curve optimization applied"
+Write-AIOutput @{
+    summary = $recommendation
+    chip_info = @{ model = $profile.Model; cores = $profile.Cores; logical_processors = $profile.LogicalCores; is_x3d = $profile.IsX3D; chip_class = $chipClass; architecture = $chipArchitecture; tdp = $chipTDP; ppt = $chipPPT; tjmax = $chipTjmax; multiplier_unlocked = $multiplierUnlocked; curve_shaper_support = $curveShaperSupport; positive_co_support = $positiveCO }
+    test_plan = @{ mode = $testMode; seconds_per_core = $secondsPerCore; cycles = $cycles; threads_per_core = $threadsPerCore; cores_tested = @($coresTested); phases = @($testMode) }
+    results = @{
+        total_cores = $rows.Count
+        passed_cores = $passed
+        failed_cores = $failed
+        failed_core_ids = @($failedIds)
+        whea_errors = $whea
+        peak_mhz = $peak
+        result_file = $csv.FullName
+        recommendation = $recommendation
+        final_offsets = @()
     }
-}
-
-# Enhanced recommendation based on chip class and characteristics
-if ($profile.IsX3D) {
-    switch ($chipClass) {
-        "S4" {
-            $recommendation = "S4 X3D processor detected (single CCD, Zen 4, multiplier locked). Testing completed successfully with voltage-limited tuning parameters. Consider optimizing for thermal performance with appropriate cooling solutions."
-        }
-        "S5" {
-            $recommendation = "S5 X3D processor detected (single CCD, Zen 5, unlocked). Testing completed successfully with voltage-limited tuning parameters. Leverage multiplier unlock for advanced tuning options."
-        }
-        "D4" {
-            $recommendation = "D4 X3D processor detected (dual-CCD, Zen 4, asymmetric). Testing completed successfully with dual-CCD tuning parameters. Ensure proper core parking settings for optimal performance."
-        }
-        "D5" {
-            $recommendation = "D5 X3D processor detected (dual-CCD, Zen 5, asymmetric). Testing completed successfully with dual-CCD tuning parameters. Leverage Curve Shaper support for optimal tuning."
-        }
-    }
-    
-    # Architecture-specific recommendations
-    switch ($chipArchitecture) {
-        "Zen 3" {
-            $recommendation += " Zen 3 architecture detected - maintain conservative tuning for stability."
-        }
-        "Zen 4" {
-            $recommendation += " Zen 4 architecture detected - consider enhanced power management settings."
-        }
-        "Zen 5" {
-            $recommendation += " Zen 5 architecture detected - leverage advanced Curve Shaper and Positive CO features for optimal tuning."
-        }
-    }
-    
-    # Power and thermal considerations
-    if ($chipTDP -gt 150) {
-        $recommendation += " High TDP chip ($chipTDP W) detected - ensure adequate cooling and thermal monitoring."
-    } elseif ($chipTDP -lt 120) {
-        $recommendation += " Low TDP chip ($chipTDP W) detected - conservative tuning approach applied."
-    }
-    
-    # Feature-specific recommendations
-    if ($multiplierUnlocked) {
-        $recommendation += " Multiplier unlocked - advanced tuning options available."
-    }
-    
-    if ($curveShaperSupport) {
-        $recommendation += " Curve Shaper support detected - enable advanced curve optimization."
-    }
-    
-    if ($positiveCO) {
-        $recommendation += " Positive CO support detected - advanced tuning features enabled."
-    }
-    
-    # Add per-CCD recommendations
-    if ($perCCDRecommendations.Count -gt 0) {
-        $recommendation += " Per-CCD tuning applied: $($perCCDRecommendations -join '; ')"
-    }
-}
-
-Write-HumanOutput "Recommendation: $recommendation"
-
-# --- AI Output ---
-$aiResults = @{
-    total_cores = $profile.Cores
-    passed_cores = $profile.Cores  # Assume all cores passed for now
-    failed_cores = 0
-    whea_errors = 0
-    peak_mhz = 0
-    total_run_time = "00:00:00"
-    recommendation = $recommendation
-    per_ccd_results = @()
-    final_offsets = @()
-    # Add outcome classification for better AI analysis
-    outcome_classification = @{
-        overall_status = "stable"
-        detailed_outcomes = @()
-        confidence_level = "high"
-    }
-}
-
-$aiOutput = @{
-    summary = "X3D Undervolt Testing Complete"
-    chip_info = @{
-        model = $profile.Model
-        cores = $profile.Cores
-        logical_processors = $profile.LogicalCores
-        is_x3d = $profile.IsX3D
-        chip_class = $chipClass
-        architecture = $chipArchitecture
-        tdp = $chipTDP
-        ppt = $chipPPT
-        tjmax = $chipTjmax
-        multiplier_unlocked = $multiplierUnlocked
-        curve_shaper_support = $curveShaperSupport
-        positive_co_support = $positiveCO
-    }
-    test_plan = @{
-        mode = $testMode
-        seconds_per_core = $secondsPerCore
-        cycles = $cycles
-        threads_per_core = $threadsPerCore
-        cores_tested = @()
-        phases = @("Light", "Heavy")
-    }
-    results = $aiResults
     status = "completed"
 }
-
-Write-AIOutput $aiOutput
-
-Write-HumanOutput ""
-Write-HumanOutput "X3D Undervolt Testing completed successfully!" -ForegroundColor Green

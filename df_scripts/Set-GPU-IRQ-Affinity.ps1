@@ -1,14 +1,11 @@
 <#
-    Steer NVIDIA GPU interrupts away from the sim's core
+    Steer NVIDIA GPU interrupts off CPU 0
     ---------------------------------------------------------------
-    iRacing's sim thread favors CPU 0, and NVIDIA's GPU interrupts
-    (nvlddmkm) also default toward CPU 0 - they collide and cause DPC
-    spikes. This steers the GPU's interrupt handling elsewhere:
+    NVIDIA GPU interrupts (nvlddmkm) default toward CPU 0 and collide
+    with whatever is running there. This steers them elsewhere:
 
-      * Dual-CCD  -> the first CPU of the SECOND CCD, off the die the
-                     sim is pinned to (16 on a 16-core, 12 on a 12-core).
-      * Single-CCD-> a core well away from CPU 0 (half the thread count:
-                     8 on an 8-core, 6 on a 6-core).
+      * Dual-CCD  -> the first CPU of the second CCD.
+      * Single-CCD-> a core well away from CPU 0 (half the thread count).
 
     The target comes from X3D-Profiles.ps1, which knows every X3D SKU
     and validates the answer against the CPUs Windows actually reports.

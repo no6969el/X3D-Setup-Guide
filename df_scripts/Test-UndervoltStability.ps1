@@ -479,6 +479,7 @@ if (-not $coreList -or $coreList.Count -eq 0) {
 $phases = switch ($Mode) { 'Heavy' { @('Heavy') } 'Light' { @('Light') } default { @('Light','Heavy') } }
 
 # ---- Crash forensics from a previous run ---------------------------------
+$script:unresolvedCrashCore = $null
 if (Test-Path $LogPath) {
     try {
         $tail = Get-Content $LogPath -Tail 100
@@ -491,6 +492,7 @@ if (Test-Path $LogPath) {
             $resolved = ($after -match ("core {0}\b.*(PASS|FAIL|WHEA)" -f $suspect)) -or ($after -match 'RUN END')
             if (-not $resolved) {
                 Write-Host ""
+                $script:unresolvedCrashCore = [int]$suspect
                 Write-Host "  !! A previous run stopped while testing Core $suspect and never recorded a result." -ForegroundColor Magenta
                 Write-Host "     If that was a hard lock/BSOD, Core $suspect is your prime suspect." -ForegroundColor Magenta
             }
@@ -754,6 +756,8 @@ $aiResults = @{
     whea_errors = ($results.Values | Measure-Object -Property Whea -Sum).Sum
     peak_mhz = ($results.Values | Measure-Object -Property PeakMHz -Maximum).Maximum
     total_run_time = Format-HMS $totalElapsed
+    failed_core_ids = @($failed)
+    unresolved_crash_core = $script:unresolvedCrashCore
 }
 
 $aiOutput = @{

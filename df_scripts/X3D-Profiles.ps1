@@ -36,7 +36,7 @@
 # older/absent version are discarded and re-detected rather than trusted.
 $script:X3DSchemaVersion = 3
 
-$script:X3DConfigDir  = Join-Path $env:APPDATA 'iRacingX3DTuning'
+$script:X3DConfigDir  = Join-Path $env:APPDATA 'X3DTuner'
 $script:X3DConfigFile = Join-Path $script:X3DConfigDir 'config.json'
 
 # ================================================================
@@ -258,7 +258,8 @@ function Get-X3DProfile {
         # machine, so writes stay enabled.
         [hashtable]$Assume,
         [switch]$HumanReadable,
-        [switch]$AIOnly
+        [switch]$AIOnly,
+        [switch]$NoSave
     )
 
     # ---- honour a saved config unless it is stale -----------------
@@ -444,7 +445,7 @@ function Get-X3DProfile {
         $warnings += "Laptop chip detected. Interrupt steering and power-plan changes can be overridden by your OEM's power management, and the vendor control app may revert them. Every fix here has an Undo if behaviour gets worse."
     }
     if (-not $isX3D) {
-        $warnings += "This is not an X3D processor. The general fixes (Defender, timer, Game Bar, pre-race quieting, tracing) all still apply; core pinning and interrupt steering are disabled."
+        $warnings += "This is not an X3D processor. Timer, USB suspend, and Game Mode checks still apply. Interrupt steering is disabled."
     }
 
     # Hoisted out of the hashtable literal below - an 'if' as a hashtable
@@ -493,7 +494,7 @@ function Get-X3DProfile {
         Launched       = @()
     }
 
-    if (-not $simulated) { Export-X3DConfig $obj }
+    if (-not $simulated -and -not $NoSave) { Export-X3DConfig $obj }
     
     # Output based on requested format
     if ($AIOnly) {
@@ -512,42 +513,15 @@ function Get-X3DPinningAdvice {
     param([Parameter(Mandatory)]$Profile)
 
     if (-not $Profile.IsX3D) {
-        return @"
-No 3D V-Cache on this CPU, so there is no cache CCD to pin the sim to. Skip the Process Lasso pinning step - the rest of the kit still applies in full.
-
-Optional, only if you already run Process Lasso: launch iRacing into any session so iRacingSim64DX11.exe appears in its list, then right-click it -> ProBalance -> exclude. That stops it ever being throttled. Not worth installing Process Lasso just for this.
-"@
+        return "No 3D V-Cache on this CPU. Interrupt steering stays off. Timer, USB suspend, and Game Mode checks still apply."
     }
     if ($Profile.Topology -eq 'single') {
-        return @"
-Single-CCD chip: every core has the V-Cache, so there is nothing to pin.
-
-1) Keep your normal Balanced power plan. Do NOT force an all-cores-unparked plan - that is a dual-CCD-only fix and does nothing good here.
-2) Optional, only if you already run Process Lasso: launch iRacing into any session so iRacingSim64DX11.exe appears in its list, then right-click it -> ProBalance -> exclude.
-"@
+        return "Single-CCD chip: every core has the V-Cache. GPU interrupts are steered off CPU 0 to CPU $($Profile.FreqFirst). There is no separate cache CCD."
     }
     if ($Profile.VCacheScope -eq 'both') {
-        return @"
-Both CCDs have V-Cache on this chip, so there is no "good" and "bad" CCD - the cores are equivalent. Pinning still helps, but for a different reason: keeping the sim on ONE CCD avoids the latency cost of reaching across to the other die's cache.
-
-1) Process Lasso -> Main menu -> Power -> Bitsum Highest Performance.
-2) Launch iRacing and join any session (a test or AI race is fine) so iRacingSim64DX11.exe shows up in Process Lasso's list. You can quit the sim afterwards.
-3) Right-click iRacingSim64DX11.exe -> CPU Sets -> ALWAYS -> tick CPUs $($Profile.VCacheRange).
-     * "Always" is what makes it stick. Without it the setting is lost as soon as the sim closes.
-     * Use CPU Sets, NOT CPU Affinity - EasyAntiCheat reverts hard affinity within seconds.
-     * The dialog's "Cache" button is no help on this chip: both CCDs are cache, so it will select all of them. Tick $($Profile.VCacheRange) by hand.
-4) Right-click it again -> ProBalance -> exclude it.
-"@
+        return "Both CCDs have V-Cache. GPU interrupts target CPU $($Profile.FreqFirst). NIC and USB interrupts use CPUs $($Profile.IrqTargets -join ', '), off CPU 0."
     }
-    return @"
-1) Process Lasso -> Main menu -> Power -> Bitsum Highest Performance (all cores unparked).
-2) Launch iRacing and join any session (a test or AI race is fine) so iRacingSim64DX11.exe shows up in Process Lasso's list. You can quit the sim afterwards.
-3) Right-click iRacingSim64DX11.exe -> CPU Sets -> ALWAYS -> tick CPUs $($Profile.VCacheRange) (the V-Cache CCD).
-     * "Always" is what makes it stick. Without it the setting is lost as soon as the sim closes.
-     * Use CPU Sets, NOT CPU Affinity - EasyAntiCheat reverts hard affinity within seconds.
-     * Shortcut: the CPU Sets dialog has a "Cache" button that picks the V-Cache CCD for you, so you do not have to count checkboxes.
-4) Right-click it again -> ProBalance -> exclude it.
-"@
+    return "V-Cache CPUs $($Profile.VCacheRange). Background CPUs $($Profile.BackgroundRange). GPU interrupts target CPU $($Profile.FreqFirst)."
 }
 
 function Get-X3DTopologySummary {
@@ -560,9 +534,9 @@ function Get-X3DTopologySummary {
         return "Single-CCD: all $($Profile.LogicalCores) CPUs share the V-Cache - no core pinning needed. Interrupts -> CPU $($Profile.FreqFirst)."
     }
     if ($Profile.VCacheScope -eq 'both') {
-        return "Dual-CCD, V-Cache on both: sim -> CPU $($Profile.VCacheRange) (one die, avoids cross-CCD latency)  |  background -> CPU $($Profile.BackgroundRange)"
+        return "Dual-CCD, V-Cache on both. Foreground CPUs $($Profile.VCacheRange). Background CPUs $($Profile.BackgroundRange)."
     }
-    return "Sim -> V-Cache CPUs $($Profile.VCacheRange)   |   Background -> CPUs $($Profile.BackgroundRange)"
+    return "V-Cache CPUs $($Profile.VCacheRange). Background CPUs $($Profile.BackgroundRange)."
 }
 
 function Write-X3DWarnings {

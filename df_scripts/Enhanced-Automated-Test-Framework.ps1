@@ -40,7 +40,7 @@ function Write-AIOutput {
         summary = $Summary
         data = $Data
         status = $Status
-        execution_result = "success"
+        execution_result = $Status
     }
     
     if ($OutputFormat -eq "ai" -or $OutputFormat -eq "dual") {
@@ -100,89 +100,23 @@ function Test-ChipDetection {
     }
 }
 
-# Function to run stability test
+function Test-NotMeasured {
+    param([string]$Name, [string]$Reason)
+    Write-HumanOutput "$Name was not measured. $Reason"
+    Write-AIOutput -ToolName $Name -Summary $Reason -Data @{ measured = $false; reason = $Reason } -Status "not_measured"
+    return $false
+}
+
 function Test-Stability {
-    Write-HumanOutput "Running Stability Test..."
-    
-    try {
-        # This would normally run the actual stability test
-        # For now, we'll simulate it
-        $testResult = @{
-            test_type = "stability"
-            duration_seconds = $TestDuration
-            cores_tested = @()
-            results = @{
-                pass = 1
-                fail = 0
-                total = 1
-            }
-            timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-        }
-        
-        Write-HumanOutput "Stability test completed successfully"
-        Write-AIOutput -ToolName "Stability-Test" -Summary "Stability test completed" -Data $testResult
-        return $true
-    } catch {
-        Write-ErrorOutput "Stability test failed: $($_.Exception.Message)"
-        return $false
-    }
+    return Test-NotMeasured -Name "Stability-Test" -Reason "This framework does not run a stability test and will not report a pass. Run Test-UndervoltStability.ps1."
 }
 
-# Function to run undervolt test
 function Test-Undervolt {
-    Write-HumanOutput "Running Undervolt Test..."
-    
-    try {
-        # This would normally run the actual undervolt test
-        # For now, we'll simulate it
-        $testResult = @{
-            test_type = "undervolt"
-            duration_seconds = $TestDuration
-            cores_tested = @()
-            results = @{
-                pass = 1
-                fail = 0
-                total = 1
-                recommendation = "System is stable with current undervolt settings"
-            }
-            timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-        }
-        
-        Write-HumanOutput "Undervolt test completed successfully"
-        Write-AIOutput -ToolName "Undervolt-Test" -Summary "Undervolt test completed" -Data $testResult
-        return $true
-    } catch {
-        Write-ErrorOutput "Undervolt test failed: $($_.Exception.Message)"
-        return $false
-    }
+    return Test-NotMeasured -Name "Undervolt-Test" -Reason "This framework does not run an undervolt test and will not report a pass. Run X3D-Undervolt-Tester.ps1."
 }
 
-# Function to run health report
 function Test-HealthReport {
-    Write-HumanOutput "Running Health Report Test..."
-    
-    try {
-        # This would normally run the actual health report
-        # For now, we'll simulate it
-        $testResult = @{
-            test_type = "health"
-            components = @("cpu", "memory", "gpu", "bios")
-            results = @{
-                cpu = "healthy"
-                memory = "healthy"
-                gpu = "healthy"
-                bios = "healthy"
-            }
-            timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-        }
-        
-        Write-HumanOutput "Health report test completed successfully"
-        Write-AIOutput -ToolName "Health-Report" -Summary "Health report test completed" -Data $testResult
-        return $true
-    } catch {
-        Write-ErrorOutput "Health report test failed: $($_.Exception.Message)"
-        return $false
-    }
+    return Test-NotMeasured -Name "Health-Report" -Reason "This framework does not invent a health result. Run Health-Report.ps1 for the fields Windows can read."
 }
 
 # Function to generate comprehensive report
@@ -206,22 +140,10 @@ function Generate-Comprehensive-Report {
                 vcache_scope = $profile.VCacheScope
             }
             test_results = @{
-                chip_detection = @{
-                    status = "completed"
-                    timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-                }
-                stability = @{
-                    status = "completed"
-                    timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-                }
-                undervolt = @{
-                    status = "completed"
-                    timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-                }
-                health = @{
-                    status = "completed"
-                    timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
-                }
+                chip_detection = @{ status = "see_chip_detection_result" }
+                stability = @{ status = "not_measured" }
+                undervolt = @{ status = "not_measured" }
+                health = @{ status = "not_measured" }
             }
             recommendations = @()
             warnings = $profile.Warnings
@@ -241,8 +163,8 @@ function Generate-Comprehensive-Report {
             $report.recommendations = $recommendations
         }
         
-        Write-HumanOutput "Comprehensive report generated successfully"
-        Write-AIOutput -ToolName "Comprehensive-Report" -Summary "Comprehensive test report generated" -Data $report
+        Write-HumanOutput "Chip profile recorded. Stability, undervolt, and health were not measured by this framework."
+        Write-AIOutput -ToolName "Comprehensive-Report" -Summary "Chip profile only. Stability, undervolt, and health were not measured." -Data $report -Status "not_measured"
         return $true
     } catch {
         Write-ErrorOutput "Report generation failed: $($_.Exception.Message)"
@@ -277,10 +199,16 @@ if ($RunAllTests -or $GenerateReport) {
     $success = $success -and (Generate-Comprehensive-Report)
 }
 
-if ($success) {
-    Write-HumanOutput "All tests completed successfully!"
-    Write-AIOutput -ToolName "Enhanced-Automated-Test-Framework" -Summary "All tests completed successfully" -Data @{status = "completed"} -Status "completed"
+if ($RunAllTests -or $RunStabilityTest -or $RunUndervoltTest -or $RunHealthReport -or $GenerateReport) {
+    Write-HumanOutput "Finished. Requested stability, undervolt, or health results were not measured. No pass was invented."
+    Write-AIOutput -ToolName "Enhanced-Automated-Test-Framework" -Summary "No invented pass. Unmeasured tests stay not_measured." -Data @{ status = "not_measured" } -Status "not_measured"
+} elseif ($RunChipDetection -and $success) {
+    Write-HumanOutput "Chip detection finished."
+    Write-AIOutput -ToolName "Enhanced-Automated-Test-Framework" -Summary "Chip detection finished" -Data @{ status = "completed" } -Status "completed"
+} elseif ($RunChipDetection) {
+    Write-HumanOutput "Chip detection failed."
+    Write-AIOutput -ToolName "Enhanced-Automated-Test-Framework" -Summary "Chip detection failed" -Data @{ status = "failed" } -Status "error"
 } else {
-    Write-HumanOutput "Some tests failed."
-    Write-AIOutput -ToolName "Enhanced-Automated-Test-Framework" -Summary "Some tests failed" -Data @{status = "failed"} -Status "error"
+    Write-HumanOutput "Nothing was run. Use -RunChipDetection to detect the CPU. This framework does not measure stability, undervolt, or health."
+    Write-AIOutput -ToolName "Enhanced-Automated-Test-Framework" -Summary "Nothing was run." -Data @{ status = "not_measured" } -Status "not_measured"
 }

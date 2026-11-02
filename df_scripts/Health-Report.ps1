@@ -151,29 +151,24 @@ function Test-SecurityFeatures {
 # Function to get system temperature and power state
 function Get-SystemHealthMetrics {
     try {
-        # CPU Temperature (proxy)
-        $cpuTemp = Get-CimInstance -Namespace root\wmi -ClassName MSAcpi_ThermalZoneTemperature -ErrorAction SilentlyContinue 
-        if ($cpuTemp) {
-            $cpu_temp_c = [math]::Round(($cpuTemp.CurrentTemperature / 10) - 273.15, 1)
-        } else {
-            $cpu_temp_c = 30
+        $cpu_temp_c = $null
+        $cpuTemp = @(Get-CimInstance -Namespace root\wmi -ClassName MSAcpi_ThermalZoneTemperature -ErrorAction SilentlyContinue)
+        if ($cpuTemp.Count -gt 0 -and $cpuTemp[0].CurrentTemperature) {
+            $cpu_temp_c = [math]::Round(($cpuTemp[0].CurrentTemperature / 10) - 273.15, 1)
         }
-        
-        # System uptime
-        $os = Get-WmiObject -Class Win32_OperatingSystem
-        $uptime_seconds = [int64]$os.LastBootUpTime
-        
+
+        $os = Get-CimInstance Win32_OperatingSystem
+        $uptime_seconds = [int]((Get-Date) - $os.LastBootUpTime).TotalSeconds
+
         return @{
-            cpu_temperature_c = $cpu_temp_c 
+            cpu_temperature_c = $cpu_temp_c
             system_uptime_seconds = $uptime_seconds
-            thermal_zone_status = "normal"  # Would be more detailed in real implementation
         }
     } catch {
         Write-Warning "Could not get health metrics: $_"
         return @{
-            cpu_temperature_c = 30
-            system_uptime_seconds = 0 
-            thermal_zone_status = "unknown"
+            cpu_temperature_c = $null
+            system_uptime_seconds = $null
         }
     }
 }
@@ -254,11 +249,10 @@ function Generate-HealthReport {
         $healthReport.issues = $issues
         $healthReport.baseline = $baselineInfo
         
-        # Determine overall status based on issues found  
         if ($issues.Count -eq 0) {
-            $healthReport.overall_status = "healthy"
+            $healthReport.overall_status = "measured"
         } else {
-            $healthReport.overall_status = "needs_attention" 
+            $healthReport.overall_status = "needs_attention"
         }
         
         Write-Host "Health report generated successfully" -ForegroundColor Green
@@ -297,8 +291,16 @@ function Write-HumanOutput {
     
     # Health metrics
     Write-Host "`nHEALTH METRICS:" 
-    Write-Host "  CPU Temperature: $($Report.metrics.cpu_temperature_c)°C"
-    Write-Host "  System Uptime: $([math]::Round($Report.metrics.system_uptime_seconds / 3600, 2)) hours" 
+    if ($null -eq $Report.metrics.cpu_temperature_c) {
+        Write-Host "  CPU Temperature: not_measured"
+    } else {
+        Write-Host "  CPU Temperature: $($Report.metrics.cpu_temperature_c)°C"
+    }
+    if ($null -eq $Report.metrics.system_uptime_seconds) {
+        Write-Host "  System Uptime: not_measured"
+    } else {
+        Write-Host "  System Uptime: $([math]::Round($Report.metrics.system_uptime_seconds / 3600, 2)) hours"
+    } 
     
     # Baseline info  
     if ($Report.baseline.baseline_exists) {
@@ -328,12 +330,11 @@ function Write-HumanOutput {
             Write-Host "  - Enable Secure Boot for enhanced system security"
         }
     } else {
-        Write-Host "`nNO ISSUES DETECTED - SYSTEM IS HEALTHY" -ForegroundColor Green
+        Write-Host "`nNo issues in the fields this report can read. BIOS voltages and Curve Optimizer are not in this report." -ForegroundColor Green
     }
-    
-    # Overall status 
+
     $statusText = switch ($Report.overall_status) {
-        "healthy" { "HEALTHY (No issues detected)" }  
+        "measured" { "MEASURED (only fields Windows exposed)" }
         "needs_attention" { "NEEDS ATTENTION (Issues detected)" }
         default { "UNKNOWN STATUS" }
     }

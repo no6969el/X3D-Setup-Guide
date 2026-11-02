@@ -1,18 +1,10 @@
 <#
     Enable-GlobalTimerResolution.ps1
     ---------------------------------------------------------------
-    Fixes the "it stutters until I click the iRacing window" problem.
-
-    Windows 11 only honors a game's high-resolution timer request while
-    that game owns FOREGROUND focus. In VR, the compositor constantly
-    steals focus from the sim window, so Windows drops the system timer
-    from ~1 ms to its 15.625 ms default mid-race -> periodic frame-pacing
-    hitches that stop the moment you click the sim window (focus returns,
-    the timer snaps back). That click-to-fix pattern is the signature.
-    (Confirm it first with Watch-TimerResolution.ps1 if you like.)
-
-    This restores the pre-Windows-11 behavior: high-resolution timer
-    requests are honored globally, whether or not the requester has focus.
+    Windows 11 only honors a high-resolution timer request while the
+    requesting window owns foreground focus. This sets
+    GlobalTimerResolutionRequests so those requests are honored
+    globally. REBOOT for it to take effect.
 
     RUN AS ADMINISTRATOR. REBOOT for it to take effect.
     Reversible with Undo-GlobalTimerResolution.ps1.
@@ -119,8 +111,7 @@ try {
 
 Write-HumanOutput ""
 Write-HumanOutput "Done. REBOOT for it to take effect." -ForegroundColor Yellow
-Write-HumanOutput "After the reboot, Watch-TimerResolution.ps1 should show ~1 ms or better" -ForegroundColor DarkGray
-Write-HumanOutput "while the sim runs, even when the sim window doesn't have focus." -ForegroundColor DarkGray
+Write-HumanOutput "After reboot, run the scan again. It confirms the registry value is still 1." -ForegroundColor DarkGray
 
 # --- AI Output ---
 Write-AIOutput @{

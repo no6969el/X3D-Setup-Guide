@@ -1,11 +1,9 @@
 <#
     Apply-Guide-Extras.ps1
     ---------------------------------------------------------------
-    Remaining low-risk guide items:
-      * USB Selective Suspend = OFF on the active power plan
-        (stops wheel/VR USB devices power-cycling mid-race -
-         a real DPC-hitch source)
-      * Windows Game Mode / Game Bar / Game DVR = OFF
+    Turns USB Selective Suspend OFF on the active power plan, and turns
+    Game Mode, Game Bar, and Game DVR OFF. Reversible with
+    Undo-Guide-Extras.ps1. No reboot needed.
     Safe and reversible (Undo-Guide-Extras.ps1). No reboot needed.
     HAGS is a genuine toss-up on newer cards - test both ways (see guide).
     RUN AS ADMINISTRATOR.

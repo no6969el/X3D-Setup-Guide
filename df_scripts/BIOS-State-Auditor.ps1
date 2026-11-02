@@ -4,9 +4,10 @@
 .SYNOPSIS
     BIOS State Auditor for X3D Systems
 .DESCRIPTION
-    This tool reads and reports on key BIOS settings that affect X3D system stability 
-    and performance. It checks memory configuration, SoC voltage, and other critical 
-    parameters to verify they match the requirements from Phase 0 of the X3D Setup Guide.
+    Reports the BIOS version string and the memory modules Windows can see.
+    EXPO, memory context restore, SoC voltage, and Curve Optimizer are not
+    readable here. This script does not invent those values and does not
+    report a pass.
     
 .EXAMPLE
     .\BIOS-State-Auditor.ps1
@@ -66,7 +67,8 @@ function Write-HumanOutput {
     Write-Host "  ${key}: $($Data.SchedulingSettings[$key])"
     }
     
-    Write-Host "`nOVERALL STATUS: $($Data.OverallStatus)" -ForegroundColor $(if($Data.OverallStatus -eq 'PASS') { "Green" } else { "Red" })
+    $statusColor = switch ($Data.OverallStatus) { 'PASS' { 'Green' } 'not_measured' { 'Yellow' } default { 'Red' } }
+    Write-Host "`nOVERALL STATUS: $($Data.OverallStatus)" -ForegroundColor $statusColor
     
     if ($Data.Issues.Count -gt 0) {
         Write-Host "`nISSUES DETECTED:" -ForegroundColor Red
@@ -149,113 +151,67 @@ function Get-SystemInfo {
     }
 }
 
-# Function to get memory settings (mock implementation)
 function Get-MemorySettings {
-    # This is a placeholder - actual BIOS reading would require specialized tools
-    # or Windows Management Instrumentation access to specific memory configuration
-    
-    $auditResults.MemorySettings = @{
-        "EXPOProfileActive" = "Unknown"
-        "MCRStatus" = "Unknown" 
-        "PowerDownStatus" = "Unknown"
-        "TrainedValuesRecorded" = "Unknown"
-        "MemorySpeedMHz" = "Unknown"
-        "FCLKValue" = "Unknown"
-        "UCLKValue" = "Unknown"
-        "MCLKValue" = "Unknown"
+    $notMeasured = 'not_measured'
+    $settings = @{
+        "EXPOProfileActive" = $notMeasured
+        "MCRStatus" = $notMeasured
+        "PowerDownStatus" = $notMeasured
+        "FCLKValue" = $notMeasured
+        "UCLKValue" = $notMeasured
+        "MCLKValue" = $notMeasured
+        "MemorySpeedMHz" = $notMeasured
+        "DeviceCount" = 0
+        "PartNumbers" = @()
     }
-    
-    # For demonstration purposes, we'll simulate a pass
-    $auditResults.MemorySettings["EXPOProfileActive"] = "Enabled"
-    $auditResults.MemorySettings["MCRStatus"] = "Disabled"
-    $auditResults.MemorySettings["PowerDownStatus"] = "Disabled" 
-    $auditResults.MemorySettings["TrainedValuesRecorded"] = "Yes"
-    
-    # These would need to be read from actual BIOS registers or memory tools
-    $auditResults.MemorySettings["MemorySpeedMHz"] = "6000"
-    $auditResults.MemorySettings["FCLKValue"] = "2000" 
-    $auditResults.MemorySettings["UCLKValue"] = "6000"
-    $auditResults.MemorySettings["MCLKValue"] = "3000"
+    try {
+        $modules = @(Get-CimInstance Win32_PhysicalMemory -ErrorAction Stop)
+        $speeds = @($modules | ForEach-Object { $_.ConfiguredClockSpeed } | Where-Object { $_ })
+        if ($speeds.Count -gt 0) { $settings["MemorySpeedMHz"] = ($speeds | Select-Object -First 1) }
+        $settings["DeviceCount"] = $modules.Count
+        $settings["PartNumbers"] = @($modules | ForEach-Object { $_.PartNumber.Trim() })
+    } catch {
+        Write-Warning "Could not read Win32_PhysicalMemory: $_"
+    }
+    $auditResults.MemorySettings = $settings
 }
 
-# Function to get voltage settings (mock implementation)
 function Get-VoltageSettings {
-    # This is a placeholder - actual SoC voltage reading requires specialized tools
     $auditResults.VoltageSettings = @{
-        "SoCVoltage" = "Unknown"
-        "VoltageGuardrail" = "1.30V"
-        "Status" = "Unknown"
+        "SoCVoltage" = "not_measured"
+        "Status" = "not_measured"
     }
-    
-    # Simulate that voltage is within limits (should be checked against actual values)
-    $auditResults.VoltageSettings["SoCVoltage"] = "1.25V"
-    $auditResults.VoltageSettings["Status"] = "Within Safe Limits"
 }
 
-# Function to get PBO settings
 function Get-PBOSettings {
-    # Placeholder for PBO/CO settings
     $auditResults.PBOSettings = @{
-        "PBOEnabled" = "Unknown"
-        "CurveOptimizerOffsets" = "Unknown"
-        "PPTLimit" = "Unknown"
-        "TDCeLimit" = "Unknown"
-        "EDCValue" = "Unknown"
+        "PBOEnabled" = "not_measured"
+        "CurveOptimizerOffsets" = "not_measured"
+        "PPTLimit" = "not_measured"
+        "TDCLimit" = "not_measured"
+        "EDCValue" = "not_measured"
     }
-    
-    # Simulate reasonable settings
-    $auditResults.PBOSettings["PBOEnabled"] = "Enabled (Conservative)"
-    $auditResults.PBOSettings["CurveOptimizerOffsets"] = "-12 to -15 range"
-    $auditResults.PBOSettings["PPTLimit"] = "Default"  
-    $auditResults.PBOSettings["TDCeLimit"] = "Default"
-    $auditResults.PBOSettings["EDCValue"] = "Default"
 }
 
-# Function to get scheduling settings
 function Get-SchedulingSettings {
-    # Placeholder for CPU scheduling related BIOS settings
+    $smt = "not_measured"
+    try {
+        $cpu = Get-CimInstance Win32_Processor | Select-Object -First 1
+        if ($cpu.NumberOfLogicalProcessors -gt $cpu.NumberOfCores) { $smt = "enabled" }
+        elseif ($cpu.NumberOfLogicalProcessors -eq $cpu.NumberOfCores) { $smt = "disabled" }
+    } catch { }
     $auditResults.SchedulingSettings = @{
-        "CPPCEnabled" = "Unknown" 
-        "GlobalCStates" = "Unknown"
-        "SMTStatus" = "Unknown"
-        "iGPUStatus" = "Unknown"
+        "CPPCEnabled" = "not_measured"
+        "GlobalCStates" = "not_measured"
+        "SMTStatus" = $smt
+        "iGPUStatus" = "not_measured"
     }
-    
-    # Simulate standard recommended values for X3D systems
-    $auditResults.SchedulingSettings["CPPCEnabled"] = "Enabled"
-    $auditResults.SchedulingSettings["GlobalCStates"] = "Enabled"
-    $auditResults.SchedulingSettings["SMTStatus"] = "Enabled (Recommended)"
-    $auditResults.SchedulingSettings["iGPUStatus"] = "Disabled"
 }
 
-# Function to validate settings against Phase 0 requirements
 function Test-Phase0Requirements {
-    $issues = @()
-    
-    # Validate memory settings according to X3D Guide phase 0 requirements
-    if ($auditResults.MemorySettings["MCRStatus"] -ne "Disabled") {
-        $issues += "Memory Context Restore (MCR) should be DISABLED as per Phase 0 requirements"
-    }
-    
-    if ($auditResults.MemorySettings["PowerDownStatus"] -ne "Disabled") {
-        $issues += "Power Down Enable should be DISABLED as per Phase 0 requirements" 
-    }
-    
-    # Validate voltage settings
-    if ($auditResults.VoltageSettings["SoCVoltage"]) {
-        try {
-            [double]$voltage = $auditResults.VoltageSettings["SoCVoltage"].Replace("V", "")
-            [double]$guardrail = $auditResults.VoltageSettings["VoltageGuardrail"].Replace("V", "")
-            
-            if ($voltage -gt $guardrail) {
-                $issues += "SoC Voltage ($voltage V) exceeds guardrail limit of $guardrail V"
-            }
-        } catch {
-            # If we can't convert to numbers, skip validation
-        }
-    }
-    
-    return $issues
+    return @(
+        "EXPO, memory context restore, power-down, SoC voltage, and Curve Optimizer are not readable from Windows. No pass or fail is reported for them."
+    )
 }
 
 # Main execution logic
@@ -271,12 +227,7 @@ Get-SchedulingSettings
 # Validate against requirements
 $auditResults.Issues = Test-Phase0Requirements
 
-# Determine overall status 
-if ($auditResults.Issues.Count -eq 0) {
-    $auditResults.OverallStatus = "PASS"
-} else {
-    $auditResults.OverallStatus = "FAIL"  
-}
+$auditResults.OverallStatus = "not_measured"
 
 # Output results based on requested format
 if ($OutputFormat -eq "human" -or $OutputFormat -eq "both") {

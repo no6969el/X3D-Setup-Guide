@@ -157,8 +157,8 @@ function Get-BootType {
     }
     
     return @{
-        raw = "0x0"
-        type = "cold"
+        raw = "not_measured"
+        type = "not_measured"
     }
 }
 
@@ -178,15 +178,14 @@ function Get-ThermalContext {
     try {
         # Use WMI to get CPU temperature as proxy
         $cpuTemp = Get-CimInstance -Namespace root\wmi -ClassName MSAcpi_ThermalZoneTemperature -ErrorAction SilentlyContinue 
-        if ($cpuTemp) {
-            return [math]::Round(($cpuTemp.CurrentTemperature / 10) - 273.15, 1)
+        $zones = @($cpuTemp)
+        if ($zones.Count -gt 0 -and $zones[0].CurrentTemperature) {
+            return [math]::Round(($zones[0].CurrentTemperature / 10) - 273.15, 1)
         }
     } catch {
         Write-Warning "Could not get thermal context: $_"
     }
-    
-    # Return default value
-    return 30.0 
+    return $null
 }
 
 # Function to check if boot qualifies as a cold boot that should count toward verification
@@ -203,52 +202,35 @@ function Test-BootQualifies {
 
 # Function to get memory settings via AMD ACPI WMI
 function Get-MemorySettings {
-    try {
-        # Check if AMD_ACPI is available
-        $wmiClass = Get-CimInstance -Namespace root\wmi -ClassName AMD_ACPI -ErrorAction SilentlyContinue
-        
-        if ($wmiClass) {
-            # This is a placeholder implementation - would need actual WMI calls to get real values 
-            return @{
-                trfc = 468
-                trfc2 = 290  
-                trfcsb = 150
-                procodt = 40
-                rtt_nom = "RZQ/3"
-                rtt_wr = "RZQ/1" 
-                rtt_park = "RZQ/5"
-                cad_bus_drive_strengths = "normal"
-            }
-        } else {
-            Write-Warning "AMD_ACPI WMI not available - Class B values will be empty"
-            return @{}
-        }
-    } catch {
-        Write-Warning "Could not read memory settings: $_"
-        return @{} 
+    return @{
+        status = "not_measured"
+        reason = "Windows does not expose trained DRAM timings (tRFC, RTT, ProcODT)."
     }
 }
 
-# Function to get commanded/programmed values
 function Get-CommandedValues {
     try {
-        # This is a placeholder for actual BIOS reading - in reality, this would come from EXPO or manual settings  
+        $modules = @(Get-CimInstance Win32_PhysicalMemory -ErrorAction Stop)
+        $speeds = @($modules | ForEach-Object { $_.ConfiguredClockSpeed } | Where-Object { $_ })
+        $capacity = 0
+        foreach ($module in $modules) { $capacity += [int64]$module.Capacity }
         return @{
-            memory_frequency = 6000
-            uclk_mclk_ratio = "1:1"
-            fclk = 2000
-            tcl = 30
-            trcd = 36
-            trp = 36 
-            tras = 96
-            command_rate = 2
-            memory_module_partnumbers = @("Unknown")
-            memory_module_count = 4
-            total_capacity = "16GB"
+            memory_speed_mhz = $(if ($speeds.Count -gt 0) { $speeds[0] } else { "not_measured" })
+            memory_module_partnumbers = @($modules | ForEach-Object { $_.PartNumber.Trim() })
+            memory_module_count = $modules.Count
+            total_capacity_gb = [math]::Round($capacity / 1GB, 2)
+            expo_profile = "not_measured"
+            uclk_mclk_ratio = "not_measured"
+            fclk = "not_measured"
+            tcl = "not_measured"
+            trcd = "not_measured"
+            trp = "not_measured"
+            tras = "not_measured"
+            command_rate = "not_measured"
         }
     } catch {
-        Write-Warning "Could not read commanded values: $_"
-        return @{ }
+        Write-Warning "Could not read memory modules: $_"
+        return @{ status = "not_measured" }
     }
 }
 
@@ -262,15 +244,15 @@ function Get-SystemContext {
             agesa = $bios.SMBIOSBIOSVersion
             bios_version = $bios.SMBIOSBIOSVersion  
             cpu_temp_c = Get-ThermalContext
-            mb_temp_c = Get-ThermalContext # Simplified, would be more accurate in real implementation
+            mb_temp_c = $null
         }
     } catch {
         Write-Warning "Could not get system context: $_" 
         return @{
             agesa = "Unknown"
             bios_version = "Unknown"
-            cpu_temp_c = 30.0
-            mb_temp_c = 30.0
+            cpu_temp_c = $null
+            mb_temp_c = $null
         }
     }
 }
@@ -332,8 +314,7 @@ function Get-BootTier {
         Write-Warning "Could not determine boot tier: $_"
     }
     
-    # Default to S5 power on if we can't determine better
-    return "s5_power_on"
+    return "not_measured"
 }
 
 # Function to capture fingerprint data 
@@ -344,9 +325,8 @@ function Capture-FingerprintData {
         $bootInfo = Get-BootType
         $fastStartupEnabled = Test-FastStartup
         
-        # Validate Fast Startup is disabled (hard requirement)
         if ($fastStartupEnabled) {
-            throw "Fast Startup is enabled. This test cannot proceed because it invalidates the entire verification process."
+            Write-Warning "Fast Startup is enabled. A hybrid boot is not a cold memory-training boot."
         }
         
         # Check if boot qualifies for training fingerprint capture
@@ -378,7 +358,7 @@ function Capture-FingerprintData {
             $fingerprintData.context.temp_spread_c = [math]::Round($tempSpread, 1)
         }
         
-        Write-Host "Fingerprint captured successfully" -ForegroundColor Green
+        Write-Host "Recorded the fields Windows can read. DRAM timings, EXPO, and SoC voltage are not_measured." -ForegroundColor Green
         return $true
         
     } catch {

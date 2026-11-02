@@ -1,11 +1,9 @@
 <#
     Set-NIC-USB-IRQ-Affinity.ps1
     ---------------------------------------------------------------
-    Same trick as the GPU fix, applied to the next CPU 0 offenders.
-    LatencyMon typically shows CPU 0 carrying most DPC load while the
-    sim runs there. This steers physical NIC(s) and USB host
-    controllers' interrupts onto background cores - off CPU 0 (the sim)
-    and off the core the GPU interrupts were moved to.
+    Same interrupt move as the GPU fix, for the next CPU 0 offenders.
+    This steers physical NIC(s) and USB host controllers onto background
+    cores: off CPU 0, and off the core the GPU interrupts were moved to.
 
     The target list comes from X3D-Profiles.ps1 and is clamped to the
     CPUs Windows actually reports, so on a 6-core chip it uses 7/8/9
